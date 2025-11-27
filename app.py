@@ -378,9 +378,19 @@ def tasks_create():
 
 @app.route('/tasks/<int:id>')
 @login_required
-@module_access_required('tasks')
 def tasks_view(id):
     task = Task.query.get_or_404(id)
+    comments = TaskComment.query.filter_by(task_id=id).all()
+
+    assigned_user_ids = [a.user_id for a in task.assignments]
+
+    return render_template(
+        'tasks_view.html',
+        task=task,
+        comments=comments,
+        get_task_status_color=get_task_status_color,
+        assigned_user_ids=assigned_user_ids
+    )
     
     # Check access - XODIMLAR FAQAT O'Z TOPSHIRIQLARINI KO'RADI
     if current_user.role == 'xodim':
