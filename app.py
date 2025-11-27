@@ -408,45 +408,96 @@ def tasks_view(id):
 def tasks_update_status(id):
     task = Task.query.get_or_404(id)
     new_status = request.form.get('status')
-    
-    if new_status == 'completed':
-        # Xodim tugalladi deb belgilasa, rahbar tasdiqini kutish
-        if current_user.role == 'xodim':
-            task.status = 'review'
-            flash('Topshiriq rahbar tasdiqini kutmoqda', 'info')
-            
-            # Notify rahbar
+
+    # ========== 1) XODIM TOPSHIRIQQA "BAJARDI" BOSGANDA ==========
+    if new_status == 'completed' and current_user.role == 'xodim':
+
+        # Rahbar tasdiqlashi uchun "review" holatiga o'tadi
+        task.status = 'review'
+        flash('Topshiriq rahbar tasdiqini kutmoqda', 'info')
+
+        # Rahbarga tizim ichidagi xabarnoma
+        notification = Notification(
+            user_id=task.created_by,
+            title='Topshiriq tasdiqini kutmoqda',
+            message=f'{current_user.full_name} "{task.title}" topshiriqni bajardi',
+            type='task',
+            link=url_for('tasks_view', id=task.id)
+        )
+        db.session.add(notification)
+
+        # 🔥 RAHBARGA PUSH YUBORILADI
+        boss = User.query.get(task.created_by)
+        if boss and boss.telegram_chat_id:
+            send_push(
+                boss.telegram_chat_id,
+                f"📌 Xodim topshiriqni bajardi:\n{task.title}\nTasdiqlashingiz kerak."
+            )
+
+    # ========== 2) RAHBAR TASDIQLAGANDA ==========
+    elif new_status == 'approved' and current_user.role == 'rahbar':
+
+        task.status = 'completed'
+        task.completion_date = datetime.utcnow()
+
+        # Har bir biriktirilgan xodimga habar
+        for assignment in task.assignments:
+            worker = User.query.get(assignment.user_id)
+
+            # 🔥 XODIMGA PUSH
+            if worker and worker.telegram_chat_id:
+                send_push(
+                    worker.telegram_chat_id,
+                    f"✅ Rahbar topshirig'ingizni TASDIQLADI:\n{task.title}"
+                )
+
             notification = Notification(
-                user_id=task.created_by,
-                title='Topshiriq tasdiqlash kutilmoqda',
-                message=f'{current_user.full_name} "{task.title}" topshiriqni tugatdi',
+                user_id=assignment.user_id,
+                title='Topshiriq tasdiqlandi',
+                message=f'"{task.title}" tasdiqlandi',
                 type='task',
                 link=url_for('tasks_view', id=task.id)
             )
             db.session.add(notification)
-        else:
-            # Rahbar tasdiqlaganda
-            task.status = 'completed'
-            task.completion_date = datetime.utcnow()
-            flash('Topshiriq tasdiqlandi va bajarildi deb belgilandi', 'success')
-            
-            # Notify assigned users
-            for assignment in task.assignments:
-                notification = Notification(
-                    user_id=assignment.user_id,
-                    title='Topshiriq tasdiqlandi',
-                    message=f'"{task.title}" topshiriqi tasdiqlandi',
-                    type='task',
-                    link=url_for('tasks_view', id=task.id)
+
+        flash('Topshiriq tasdiqlandi', 'success')
+
+    # ========== 3) RAHBAR RAD ETGANDA ==========
+    elif new_status == 'rejected' and current_user.role == 'rahbar':
+
+        task.status = 'rejected'
+
+        for assignment in task.assignments:
+            worker = User.query.get(assignment.user_id)
+
+            # 🔥 XODIMGA PUSH
+            if worker and worker.telegram_chat_id:
+                send_push(
+                    worker.telegram_chat_id,
+                    f"❌ Rahbar topshirig'ingizni RAD ETDI:\n{task.title}"
                 )
-                db.session.add(notification)
+
+            notification = Notification(
+                user_id=assignment.user_id,
+                title='Topshiriq rad etildi',
+                message=f'"{task.title}" rad etildi',
+                type='task',
+                link=url_for('tasks_view', id=task.id)
+            )
+            db.session.add(notification)
+
+        flash('Topshiriq rad etildi', 'warning')
+
+    # ========== 4) BOSHQA STATUSLAR ==========
     else:
         task.status = new_status
-    
+
+    # Umumiy update va saqlash
     task.updated_at = datetime.utcnow()
     db.session.commit()
-    
+
     return redirect(url_for('tasks_view', id=id))
+
 
 @app.route('/tasks/<int:id>/add-comment', methods=['POST'])
 @login_required
