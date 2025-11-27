@@ -37,11 +37,11 @@
     <div style="margin-top: 2rem;">
         <h4>Biriktirilgan xodimlar</h4>
 
-        {% for assignment in task.assignments %}
-            <p>{{ assignment.user.full_name }}</p>
-        {% else %}
-            <p>Xodim biriktirilmagan</p>
-        {% endfor %}
+      {% for assignment in task.assignments %}
+           <p>{{ assignment.assigned_user.full_name }}</p>
+      {% else %}
+           <p>Xodim biriktirilmagan</p>
+      {% endfor %}
 
     </div>
 
