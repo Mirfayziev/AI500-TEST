@@ -5,8 +5,8 @@
 
 <div class="page-header">
     <h1 class="page-title">{{ task.title }}</h1>
-    <span class="status-badge {{ get_task_status_color(task.status) }}">
-        {{ task.status|title }}
+    <span class="status-badge {{ get_task_status_color(task.status, task.due_date) }}">
+    {{ task.status|title }}
     </span>
 </div>
 
