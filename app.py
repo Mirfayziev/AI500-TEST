@@ -34,6 +34,25 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Iltimos, tizimga kiring'
 
+# ===== TELEGRAM WEBHOOKNI AVTOMATIK O'RNATISH =====
+import requests
+
+def set_webhook():
+    webhook_url = Config.SERVER_URL.rstrip("/") + "/telegram-webhook"
+    bot_token = Config.TELEGRAM_BOT_TOKEN
+
+    if bot_token and webhook_url:
+        url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+        resp = requests.post(url, json={"url": webhook_url})
+        print("Webhook response:", resp.text)
+
+with app.app_context():
+    try:
+        set_webhook()
+    except Exception as e:
+        print("Webhook set error:", e)
+# ===============================================
+
 # Create upload folders
 UPLOAD_FOLDERS = ['uploads', 'uploads/vehicles', 'uploads/buildings', 'uploads/users',
                   'uploads/tasks', 'uploads/contracts', 'uploads/outsourcing', 
