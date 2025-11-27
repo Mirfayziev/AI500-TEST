@@ -1,12 +1,18 @@
-import telebot
-from config import Config
+import os
+import requests
 
-bot = telebot.TeleBot(Config.TELEGRAM_BOT_TOKEN)
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-def send_push(chat_id, message):
+def send_push(chat_id, text):
+    """
+    Global push sender.
+    Xodim → Rahbar → Xodim reaksiyalarini yuboradi.
+    """
+    if not chat_id:
+        return
+
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     try:
-        bot.send_message(chat_id, message)
-        return True
+        requests.post(url, json={"chat_id": chat_id, "text": text})
     except Exception as e:
         print("Telegram push error:", e)
-        return False
