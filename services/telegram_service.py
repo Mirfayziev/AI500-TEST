@@ -1,14 +1,13 @@
-import requests
-from config import TELEGRAM_BOT_TOKEN
+import telebot
+from config import Config
 
-def send_push(chat_id, text):
+TOKEN = Config.TELEGRAM_BOT_TOKEN
+bot = telebot.TeleBot(TOKEN)
+
+def send_push(chat_id, message):
     try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": chat_id,
-            "text": text,
-            "parse_mode": "HTML"
-        }
-        requests.post(url, json=payload)
+        bot.send_message(chat_id, message)
+        return True
     except Exception as e:
-        print("Push xatosi:", e)
+        print("Telegram push error:", e)
+        return False
