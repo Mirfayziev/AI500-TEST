@@ -1,8 +1,7 @@
 import telebot
 from config import Config
 
-TOKEN = Config.TELEGRAM_BOT_TOKEN
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(Config.TELEGRAM_BOT_TOKEN)
 
 def send_push(chat_id, message):
     try:
