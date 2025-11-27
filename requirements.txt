@@ -12,3 +12,4 @@ openpyxl
 gunicorn
 reportlab
 Pillow
+psycopg2-binary
