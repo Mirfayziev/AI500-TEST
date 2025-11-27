@@ -1600,63 +1600,64 @@ def seed_data():
 
 @app.route('/telegram-webhook', methods=['POST'])
 def telegram_webhook():
-    """Handle Telegram bot webhooks"""
+    """Render serverda Telegram webhooklarini qabul qilish"""
     try:
-        data = request.get_json()
-        
-        if 'message' in data:
-            message = data['message']
-            chat_id = message['chat']['id']
-            text = message.get('text', '')
-            
-            # Handle /start command
-            if text.startswith('/start'):
-                # Extract user email or registration code if provided
-                parts = text.split()
-                if len(parts) > 1:
-                    email_or_code = parts[1]
-                    user = User.query.filter_by(email=email_or_code).first()
-                    
-                    if user:
-                        user.telegram_chat_id = str(chat_id)
-                        db.session.commit()
-                        
-                        response = (
-                            f"✅ Xush kelibsiz, {user.full_name}!\n\n"
-                            "Telegram bot muvaffaqiyatli ulandi. "
-                            "Endi siz yangi topshiriqlar va bildirishnomalarni Telegram orqali olasiz."
-                        )
-                    else:
-                        response = (
-                            "❌ Foydalanuvchi topilmadi.\n\n"
-                            "Iltimos, tizimda ro'yxatdan o'tganingizdan so'ng "
-                            "profil sahifasidan Telegram botni ulang."
-                        )
-                else:
-                    response = (
-                        "👋 AF IMPERIYA boshqaruv tizimiga xush kelibsiz!\n\n"
-                        "Bot orqali yangi topshiriqlar va bildirishnomalarni olasiz.\n\n"
-                        "Botni ulash uchun:\n"
-                        "1. Tizimga kiring (af-imperiya.uz)\n"
-                        "2. Profilingizga o'ting\n"
-                        "3. 'Telegram botni ulash' tugmasini bosing"
+        data = request.get_json(force=True)
+
+        # Xabar borligini tekshiramiz
+        if not data or 'message' not in data:
+            return jsonify({'ok': True})
+
+        message = data['message']
+        chat_id = message['chat']['id']
+        text = message.get('text', '')
+
+        # === /start komandasi ===
+        if text.startswith('/start'):
+            parts = text.split()
+
+            # /start email@email.com
+            if len(parts) > 1:
+                email_or_code = parts[1].strip()
+
+                user = User.query.filter_by(email=email_or_code).first()
+
+                if user:
+                    user.telegram_chat_id = str(chat_id)
+                    db.session.commit()
+
+                    msg = (
+                        f"✅ Assalomu alaykum, {user.full_name}!\n\n"
+                        "Telegram bot muvaffaqiyatli ulandi.\n"
+                        "Endi siz topshiriqlar haqidagi bildirishnomalarni shu yerda olasiz."
                     )
-                
-                # Send response
-                import requests
-                url = f"https://api.telegram.org/bot{app.config['TELEGRAM_BOT_TOKEN']}/sendMessage"
-                requests.post(url, json={
-                    'chat_id': chat_id,
-                    'text': response,
-                    'parse_mode': 'HTML'
-                })
-        
-        return jsonify({'ok': True})
+                else:
+                    msg = (
+                        "❌ Foydalanuvchi topilmadi.\n\n"
+                        "Iltimos, /start komandasi bilan birga tizimdagi email manzilingizni yuboring.\n\n"
+                        "Masalan:\n"
+                        "<code>/start user@gmail.com</code>"
+                    )
+            else:
+                msg = (
+                    "👋 AF IMPERIYA boshqaruv tizimiga xush kelibsiz!\n\n"
+                    "Bot sizga topshiriqlar bo‘yicha real vaqt bildirishnomalar yuboradi.\n\n"
+                    "Ulash uchun email bilan /start yuboring:\n"
+                    "<code>/start user@gmail.com</code>"
+                )
+
+            # xabarni yuboramiz
+            send_push(chat_id, msg)
+            return jsonify({'ok': True})
+
+        # boshqa komandalar
+        else:
+            send_push(chat_id, "ℹ Buyruq tanilmadi.")
+            return jsonify({'ok': True})
+
     except Exception as e:
-        print(f"Telegram webhook error: {e}")
+        print("Telegram webhook error:", e)
         return jsonify({'ok': False}), 500
-
-
 
 
 # ==================== MAIN ====================
