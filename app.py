@@ -384,11 +384,13 @@ def tasks_view(id):
 
     assigned_user_ids = [a.user_id for a in task.assignments]
 
-   return render_template("tasks/view.html",
-                        task=task,
-                        comments=comments,
-                        get_task_status_color=get_task_status_color,
-                        assigned_user_ids=assigned_user_ids)
+    return render_template(
+        "tasks/view.html",
+        task=task,
+        comments=comments,
+        get_task_status_color=get_task_status_color,
+        assigned_user_ids=assigned_user_ids
+    )
 
     
     # Check access - XODIMLAR FAQAT O'Z TOPSHIRIQLARINI KO'RADI
