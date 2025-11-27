@@ -8,10 +8,6 @@ import io
 import json
 from sqlalchemy import func, or_, and_
 from services.telegram_service import send_push
-from flask import request
-import telebot
-from telegram_bot import bot
-from config import SERVER_URL
 # Import models and config
 from models import *
 from config import Config
@@ -1660,23 +1656,7 @@ def telegram_webhook():
         return jsonify({'ok': False}), 500
 
 
-@app.route('/telegram_webhook', methods=['POST'])
-def telegram_webhook():
-    json_data = request.get_json()
 
-    if not json_data:
-        return "EMPTY", 200
-
-    update = telebot.types.Update.de_json(json_data)
-    bot.process_new_updates([update])
-
-    return "OK", 200
-
-
-# --- Webhookni ishga tushirish ---
-with app.app_context():
-    bot.remove_webhook()
-    bot.set_webhook(url=f"{SERVER_URL}/telegram_webhook")
 
 # ==================== MAIN ====================
 
