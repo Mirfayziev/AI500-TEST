@@ -27,7 +27,7 @@
         {% endfor %}
     </div>
     
-    {% if current_user.id in [a.user_id for a in task.assignments] or current_user.role in ['admin', 'rahbar'] %}
+    {% if current_user.id in assigned_user_ids or current_user.role in ['admin', 'rahbar'] %}
     <form method="POST" action="{{ url_for('tasks_update_status', id=task.id) }}" style="margin-top: 2rem;">
         <select name="status" class="form-control" style="display: inline-block; width: auto;">
             <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Kutilmoqda</option>
