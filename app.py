@@ -8,7 +8,10 @@ import io
 import json
 from sqlalchemy import func, or_, and_
 from services.telegram_service import send_push
-
+from flask import request
+import telebot
+from telegram_bot import bot
+from config import SERVER_URL
 # Import models and config
 from models import *
 from config import Config
@@ -1499,13 +1502,14 @@ def api_dashboard_chart_data():
 @app.route('/api/save_chat_id', methods=['POST'])
 def save_chat_id():
     data = request.get_json()
-    telegram_username = data.get("username")
+
+    username = data.get("username")
     chat_id = data.get("chat_id")
 
-    if not telegram_username:
-        return {"error": "Telegram username yo'q"}, 400
+    if not username:
+        return {"error": "Username yo'q"}, 400
 
-    user = User.query.filter_by(telegram_username=telegram_username).first()
+    user = User.query.filter_by(telegram_username=username).first()
 
     if not user:
         return {"error": "Foydalanuvchi topilmadi"}, 404
@@ -1514,6 +1518,7 @@ def save_chat_id():
     db.session.commit()
 
     return {"success": True}, 200
+
 
 
 # ==================== ERROR HANDLERS ====================
@@ -1653,6 +1658,25 @@ def telegram_webhook():
     except Exception as e:
         print(f"Telegram webhook error: {e}")
         return jsonify({'ok': False}), 500
+
+
+@app.route('/telegram_webhook', methods=['POST'])
+def telegram_webhook():
+    json_data = request.get_json()
+
+    if not json_data:
+        return "EMPTY", 200
+
+    update = telebot.types.Update.de_json(json_data)
+    bot.process_new_updates([update])
+
+    return "OK", 200
+
+
+# --- Webhookni ishga tushirish ---
+with app.app_context():
+    bot.remove_webhook()
+    bot.set_webhook(url=f"{SERVER_URL}/telegram_webhook")
 
 # ==================== MAIN ====================
 
