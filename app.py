@@ -46,10 +46,24 @@ for folder in UPLOAD_FOLDERS:
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-@app.route('/init-db-very-secret-1987')
-def init_db_very_secret():
-    db.create_all()
-    return "DATABASE TABLES CREATED SUCCESSFULLY!"
+@app.route('/create-admin-1987')
+def create_admin_1987():
+    from models import User
+    from werkzeug.security import generate_password_hash
+
+    if User.query.filter_by(email="admin@admin.com").first():
+        return "Admin already exists!"
+
+    admin = User(
+        full_name="Super Admin",
+        email="admin@admin.com",
+        password_hash=generate_password_hash("123456"),
+        role="admin",
+        is_active=True
+    )
+    db.session.add(admin)
+    db.session.commit()
+    return "ADMIN USER CREATED SUCCESSFULLY!"
 
 # Custom decorators
 def admin_required(f):
