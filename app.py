@@ -379,18 +379,33 @@ def tasks_create():
 @app.route('/tasks/<int:id>')
 @login_required
 def tasks_view(id):
-    task_obj = Task.query.get_or_404(id)
-    comments = TaskComment.query.filter_by(task_id=id).all()
+    task = Task.query.get_or_404(id)
 
-    assigned_user_ids = [a.user_id for a in task_obj.assignments]
+    # XODIM – faqat o'ziga biriktirilgan topshiriqlarni ko‘ra oladi
+    if current_user.role == 'xodim':
+        is_assigned = any(ta.user_id == current_user.id for ta in task.assignments)
+        if not is_assigned:
+            flash("Bu topshiriq sizga biriktirilmagan", "danger")
+            return redirect(url_for('tasks'))
+
+    # USER – faqat o'ziga tegishli topshiriqni ko‘ra oladi
+    elif current_user.role not in ['admin', 'rahbar']:
+        is_assigned = any(ta.user_id == current_user.id for ta in task.assignments)
+        if not is_assigned:
+            flash("Bu topshiriq sizga biriktirilmagan", "danger")
+            return redirect(url_for('tasks'))
+
+    comments = TaskComment.query.filter_by(task_id=id).order_by(TaskComment.created_at.desc()).all()
+    assigned_user_ids = [a.user_id for a in task.assignments]
 
     return render_template(
         "tasks/view.html",
-        task=task_obj,
+        task=task,
         comments=comments,
         get_task_status_color=get_task_status_color,
         assigned_user_ids=assigned_user_ids
     )
+
     
     # Check access - XODIMLAR FAQAT O'Z TOPSHIRIQLARINI KO'RADI
     if current_user.role == 'xodim':
