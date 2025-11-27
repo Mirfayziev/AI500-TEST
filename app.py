@@ -46,6 +46,11 @@ for folder in UPLOAD_FOLDERS:
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+@app.route('/init-db-very-secret-1987')
+def init_db_very_secret():
+    db.create_all()
+    return "DATABASE TABLES CREATED SUCCESSFULLY!"
+
 # Custom decorators
 def admin_required(f):
     @wraps(f)
