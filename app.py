@@ -381,14 +381,14 @@ def tasks_create():
 def tasks_view(id):
     task = Task.query.get_or_404(id)
 
-    # XODIM – faqat o'ziga biriktirilgan topshiriqlarni ko‘ra oladi
+    # Xodim faqat o‘ziga biriktirilgan topshiriqlarni ko‘radi
     if current_user.role == 'xodim':
         is_assigned = any(ta.user_id == current_user.id for ta in task.assignments)
         if not is_assigned:
             flash("Bu topshiriq sizga biriktirilmagan", "danger")
             return redirect(url_for('tasks'))
 
-    # USER – faqat o'ziga tegishli topshiriqni ko‘ra oladi
+    # Userlar faqat o‘ziga tegishli topshiriqlarni ko‘radi
     elif current_user.role not in ['admin', 'rahbar']:
         is_assigned = any(ta.user_id == current_user.id for ta in task.assignments)
         if not is_assigned:
@@ -399,12 +399,13 @@ def tasks_view(id):
     assigned_user_ids = [a.user_id for a in task.assignments]
 
     return render_template(
-        "tasks/view.html",
+        'tasks/view.html',
         task=task,
         comments=comments,
         get_task_status_color=get_task_status_color,
         assigned_user_ids=assigned_user_ids
     )
+
 
     
     # Check access - XODIMLAR FAQAT O'Z TOPSHIRIQLARINI KO'RADI
