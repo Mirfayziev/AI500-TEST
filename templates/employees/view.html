@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}{{ employee.full_name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ employee.full_name }}</h1>
+    <span class="status-badge {{ 'success' if employee.is_active else 'danger' }}">
+        {{ 'Faol' if employee.is_active else 'Faol emas' }}
+    </span>
+</div>
+
+<style>
+    .profile-container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    .profile-sidebar {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 4rem;
+        margin: 0 auto 1.5rem;
+    }
+    .profile-info {
+        text-align: left;
+    }
+    .info-item {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .info-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+    .info-value {
+        color: var(--dark);
+        font-weight: 600;
+    }
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .module-badge {
+        background: var(--bg);
+        padding: 1rem;
+        border-radius: 12px;
+        border-left: 3px solid var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    @media (max-width: 768px) {
+        .profile-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-sidebar">
+        <div class="profile-avatar">
+            {{ employee.full_name[0] }}
+        </div>
+        <h2>{{ employee.full_name }}</h2>
+        <p style="color: var(--text-light); margin-top: 0.5rem;">{{ employee.email }}</p>
+        
+        {% if stats %}
+        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ stats.total_tasks }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">Jami topshiriqlar</div>
+                </div>
+                <div>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--secondary);">{{ stats.completed_tasks }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">Bajarilgan</div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; padding: 1rem; background: var(--bg); border-radius: 12px;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">{{ stats.completion_rate }}%</div>
+                <div style="font-size: 0.85rem; color: var(--text-light);">Bajarilish foizi</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div>
+        <div class="card">
+            <h3>Shaxsiy ma'lumotlar</h3>
+            <div class="profile-info">
+                <div class="info-item">
+                    <div class="info-label">Rol</div>
+                    <div class="info-value">{{ employee.role|title }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Bo'lim</div>
+                    <div class="info-value">{{ employee.department or '-' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Lavozim</div>
+                    <div class="info-value">{{ employee.position or '-' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Telefon</div>
+                    <div class="info-value">{{ employee.phone or '-' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Telegram</div>
+                    <div class="info-value">{{ employee.telegram_username or '-' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Ro'yxatdan o'tgan</div>
+                    <div class="info-value">{{ employee.created_at.strftime('%d.%m.%Y') }}</div>
+                </div>
+            </div>
+            
+            {% if employee.bio %}
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <h4>Haqida</h4>
+                <p style="color: var(--text-light); margin-top: 0.5rem;">{{ employee.bio }}</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if current_user.role in ['admin', 'rahbar'] %}
+        <div class="card" style="margin-top: 2rem;">
+            <h3>Biriktirilgan Modullar</h3>
+            <div class="modules-grid">
+                {% for module in employee.assigned_modules %}
+                <div class="module-badge">
+                    <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                    <span>{{ module.module_name }}</span>
+                    <form method="POST" action="{{ url_for('employees_remove_module', id=employee.id, module_name=module.module_name) }}" style="margin-left: auto;">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <form method="POST" action="{{ url_for('employees_assign_module', id=employee.id) }}" style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+                <select name="module_name" class="form-control" style="flex: 1;">
+                    <option value="">Modul tanlang</option>
+                    <option value="tasks">Topshriqlar</option>
+                    <option value="vehicles">Avto Transport</option>
+                    <option value="buildings">Binolar</option>
+                    <option value="greenspaces">Yashil Makonlar</option>
+                    <option value="solarpanels">Quyosh Panellari</option>
+                    <option value="outsourcing">Outsorsing</option>
+                    <option value="organizations">Tashkilotlar</option>
+                    <option value="guests">Mehmonlar</option>
+                    <option value="celebrations">Tabriknomalar</option>
+                    <option value="contracts">Shartnomalar</option>
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Qo'shish
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

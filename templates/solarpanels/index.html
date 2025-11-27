@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Quyosh Panellari{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Quyosh Panellari</h1>
+    <a href="{{ url_for('solarpanels_create') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Yangi panel
+    </a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+    {% for panel in solarpanels %}
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #ffc107, #ff9800); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-solar-panel" style="font-size: 1.8rem; color: white;"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0;">{{ panel.panel_type or 'Panel' }}</h3>
+                <p style="color: var(--text-light); margin: 0;">{{ panel.manufacturer }}</p>
+            </div>
+        </div>
+        <div style="display: grid; gap: 0.5rem;">
+            <p><strong>Model:</strong> {{ panel.model or '-' }}</p>
+            <p><strong>Quvvat:</strong> {{ panel.capacity or '-' }} kW</p>
+            <p><strong>Samaradorlik:</strong> {{ panel.efficiency or '-' }}%</p>
+            <p><strong>Holat:</strong> <span class="status-badge success">{{ panel.status }}</span></p>
+        </div>
+        {% if panel.monitoring_url %}
+        <a href="{{ panel.monitoring_url }}" target="_blank" class="btn btn-outline" style="margin-top: 1rem; width: 100%;">
+            <i class="fas fa-chart-line"></i> Monitoring
+        </a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

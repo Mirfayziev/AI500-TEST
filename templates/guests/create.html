@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Yangi Mehmon{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Mehmon registratsiyasi</h1>
+</div>
+<div class="card" style="max-width: 900px;">
+    <form method="POST">
+        <h3 style="margin-bottom: 1.5rem;">Shaxsiy ma'lumotlar</h3>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>To'liq ismi</label>
+                <input type="text" name="full_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Tashkilot</label>
+                <input type="text" name="organization" class="form-control">
+            </div>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Lavozim</label>
+                <input type="text" name="position" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Asos raqami</label>
+                <input type="text" name="reference_number" class="form-control">
+            </div>
+        </div>
+        
+        <h3 style="margin: 2rem 0 1.5rem;">Tashrif ma'lumotlari</h3>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Kelgan sana</label>
+                <input type="date" name="arrival_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Ketgan sana</label>
+                <input type="date" name="departure_date" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Tashrif maqsadi</label>
+            <textarea name="visit_purpose" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Ko'rsatilgan xizmatlar</label>
+            <textarea name="services_provided" class="form-control" rows="3"></textarea>
+        </div>
+        
+        <h3 style="margin: 2rem 0 1.5rem;">Xarajatlar</h3>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Restoran (so'm)</label>
+                <input type="number" step="0.01" name="restaurant_expense" class="form-control" value="0">
+            </div>
+            <div class="form-group">
+                <label>Sovg'a (so'm)</label>
+                <input type="number" step="0.01" name="gift_expense" class="form-control" value="0">
+            </div>
+            <div class="form-group">
+                <label>Boshqa (so'm)</label>
+                <input type="number" step="0.01" name="other_expenses" class="form-control" value="0">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="margin-top: 2rem;">
+            <i class="fas fa-save"></i> Saqlash
+        </button>
+        <a href="{{ url_for('guests') }}" class="btn btn-outline">
+            <i class="fas fa-times"></i> Bekor qilish
+        </a>
+    </form>
+</div>
+{% endblock %}

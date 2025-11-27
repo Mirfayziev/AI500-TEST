@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Yangi Outsorsing Xizmati{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Yangi outsorsing xizmati</h1>
+</div>
+<div class="card" style="max-width: 800px;">
+    <form method="POST">
+        <div class="form-group">
+            <label>Xizmat nomi</label>
+            <input type="text" name="service_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Provayder</label>
+            <input type="text" name="provider_name" class="form-control">
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Shartnoma raqami</label>
+                <input type="text" name="contract_number" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Shartnoma sanasi</label>
+                <input type="date" name="contract_date" class="form-control">
+            </div>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Boshlanish sanasi</label>
+                <input type="date" name="start_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Tugash sanasi</label>
+                <input type="date" name="end_date" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Narx (so'm)</label>
+            <input type="number" step="0.01" name="cost" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Xizmat tavsifi</label>
+            <textarea name="service_description" class="form-control" rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Saqlash
+        </button>
+    </form>
+</div>
+{% endblock %}

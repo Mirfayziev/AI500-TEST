@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Yangi Quyosh Paneli{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Yangi quyosh paneli qo'shish</h1>
+</div>
+<div class="card" style="max-width: 800px;">
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Bino</label>
+            <select name="building_id" class="form-control">
+                <option value="">Tanlang</option>
+                {% for building in buildings %}
+                <option value="{{ building.id }}">{{ building.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Panel turi</label>
+                <input type="text" name="panel_type" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Quvvat (kW)</label>
+                <input type="number" step="0.01" name="capacity" class="form-control">
+            </div>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>Ishlab chiqaruvchi</label>
+                <input type="text" name="manufacturer" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Model</label>
+                <input type="text" name="model" class="form-control">
+            </div>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label>O'rnatilgan sana</label>
+                <input type="date" name="installation_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Samaradorlik (%)</label>
+                <input type="number" step="0.01" name="efficiency" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Monitoring URL</label>
+            <input type="url" name="monitoring_url" class="form-control" placeholder="https://...">
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Saqlash
+        </button>
+    </form>
+</div>
+{% endblock %}

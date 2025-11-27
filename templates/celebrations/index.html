@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Tabriknomalar{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Tabriknomalar</h1>
+    <div>
+        <a href="{{ url_for('celebrations_birthdays') }}" class="btn btn-outline">
+            <i class="fas fa-birthday-cake"></i> Tug'ilgan kunlar
+        </a>
+        <a href="{{ url_for('celebrations_create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yangi tabrik
+        </a>
+    </div>
+</div>
+<div style="display: grid; gap: 1rem; margin-top: 2rem;">
+    {% for celebration in celebrations %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-gift" style="font-size: 1.5rem; color: white;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0;">{{ celebration.title }}</h3>
+                        <p style="color: var(--text-light); margin: 0;">
+                            {{ celebration.date.strftime('%d.%m.%Y') if celebration.date else '-' }}
+                        </p>
+                    </div>
+                </div>
+                {% if celebration.recipient %}
+                <p><strong>Qabul qiluvchi:</strong> {{ celebration.recipient.full_name }}</p>
+                {% endif %}
+                {% if celebration.gift_description %}
+                <p><strong>Sovg'a:</strong> {{ celebration.gift_description }}</p>
+                {% endif %}
+                {% if celebration.gift_value %}
+                <p><strong>Qiymati:</strong> {{ '{:,.0f}'.format(celebration.gift_value) }} so'm</p>
+                {% endif %}
+            </div>
+            <span class="status-badge success">{{ celebration.type or 'general' }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

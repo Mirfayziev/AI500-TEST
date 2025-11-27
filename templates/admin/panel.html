@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Admin Panel</h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_users }}</h3>
+            <p>Jami foydalanuvchilar</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ active_users }}</h3>
+            <p>Faol foydalanuvchilar</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_tasks }}</h3>
+            <p>Jami topshiriqlar</p>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h3>So'nggi faoliyat</h3>
+    <div style="margin-top: 1rem;">
+        {% for activity in recent_activities %}
+        <div style="padding: 0.8rem; border-bottom: 1px solid var(--border);">
+            <p><strong>{{ activity.user.full_name if activity.user else 'Tizim' }}</strong> - {{ activity.action }}</p>
+            <small style="color: var(--text-light);">{{ activity.created_at.strftime('%d.%m.%Y %H:%M') }} - {{ activity.module }}</small>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div style="margin-top: 2rem;">
+    <a href="{{ url_for('admin_users') }}" class="btn btn-primary">
+        <i class="fas fa-users"></i> Foydalanuvchilarni boshqarish
+    </a>
+</div>
+{% endblock %}

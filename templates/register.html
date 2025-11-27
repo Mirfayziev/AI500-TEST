@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Ro'yxatdan o'tish{% endblock %}
+{% block login_content %}
+<style>
+    .register-container {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #0084d4 0%, #1eb53a 100%);
+        padding: 2rem;
+    }
+    .register-box {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem;
+        max-width: 600px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .register-box h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+    .register-box p {
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0,132,212,0.1);
+    }
+    .btn-register {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .login-link {
+        text-align: center;
+        margin-top: 1rem;
+        color: var(--text-light);
+    }
+    .login-link a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+<div class="register-container">
+    <div class="register-box">
+        <h2>Ro'yxatdan o'tish</h2>
+        <p>Yangi hisob yaratish uchun ma'lumotlaringizni kiriting</p>
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>To'liq ism</label>
+                    <input type="text" name="full_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Bo'lim</label>
+                    <input type="text" name="department" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Lavozim</label>
+                    <input type="text" name="position" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Telegram username</label>
+                <input type="text" name="telegram_username" class="form-control" placeholder="@username">
+            </div>
+            <div class="form-group">
+                <label>Parol</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Umumiy ma'lumot</label>
+                <textarea name="bio" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn-register">
+                <i class="fas fa-user-plus"></i> Ro'yxatdan o'tish
+            </button>
+            <div class="login-link">
+                Hisobingiz bormi? <a href="{{ url_for('login') }}">Kirish</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

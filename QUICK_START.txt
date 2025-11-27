@@ -1,0 +1,126 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║         AF IMPERIYA - Enterprise Management System                   ║
+║              Professional Web Application                             ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+🚀 QUICK START (LOKAL)
+══════════════════════════════════════════════════════════════════════
+
+WINDOWS:
+--------
+1. Double-click "start.bat"
+2. Open browser: http://localhost:5000
+3. Login:
+   Email: admin@afimperiya.uz
+   Password: admin123
+
+MAC/LINUX:
+----------
+1. Terminal'da: ./start.sh
+2. Open browser: http://localhost:5000
+3. Login:
+   Email: admin@afimperiya.uz
+   Password: admin123
+
+MANUAL:
+-------
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python init_db.py
+python app.py
+
+═══════════════════════════════════════════════════════════════════════
+
+🌐 RENDER.COM GA DEPLOY
+═══════════════════════════════════════════════════════════════════════
+
+1. GitHub'ga push qiling:
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+
+2. Render.com ga kiring
+
+3. New Web Service yarating:
+   - Repository tanlang
+   - Build: pip install -r requirements.txt
+   - Start: gunicorn app:app
+   
+4. Environment Variables qo'shing:
+   SECRET_KEY=<random_key>
+   
+5. PostgreSQL qo'shing (New + > PostgreSQL)
+
+6. DATABASE_URL ni Web Service'ga qo'shing
+
+7. Deploy tugagach:
+   - Render Shell'da: python init_db.py
+
+═══════════════════════════════════════════════════════════════════════
+
+📦 XUSUSIYATLAR
+═══════════════════════════════════════════════════════════════════════
+
+✅ 4 Panel: Admin, Rahbar, Xodim, User
+✅ 13 Modul: Topshriqlar, Transport, Binolar, va boshqalar
+✅ Role-based Access Control
+✅ Telegram Bot integratsiyasi
+✅ PDF/Excel Export
+✅ Real-time Notifications
+✅ File Upload
+✅ Dashboard with Charts
+✅ O'zbekiston milliy ranglari
+✅ Mobile-Friendly
+✅ Production-Ready
+
+═══════════════════════════════════════════════════════════════════════
+
+📚 QOLLANMALAR
+═══════════════════════════════════════════════════════════════════════
+
+• BOSHLASH.md       - O'zbekcha tezkor qo'llanma
+• README.md         - To'liq inglizcha qo'llanma
+• DEPLOYMENT.md     - Batafsil deploy qo'llanmasi
+• LICENSE           - MIT License
+
+═══════════════════════════════════════════════════════════════════════
+
+🔒 XAVFSIZLIK
+═══════════════════════════════════════════════════════════════════════
+
+⚠️  Default parolni o'zgartiring!
+⚠️  SECRET_KEY maxfiy saqlang!
+⚠️  Production'da PostgreSQL ishlatiladi
+⚠️  HTTPS automatic (Render'da)
+
+═══════════════════════════════════════════════════════════════════════
+
+🤖 TELEGRAM BOT
+═══════════════════════════════════════════════════════════════════════
+
+1. @BotFather'dan bot yarating
+2. Token oling
+3. Environment Variable qo'shing:
+   TELEGRAM_BOT_TOKEN=<your_token>
+4. Deploy tugagach webhook sozlang:
+   curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook
+   ?url=https://your-app.onrender.com/telegram-webhook"
+
+═══════════════════════════════════════════════════════════════════════
+
+📞 YORDAM
+═══════════════════════════════════════════════════════════════════════
+
+GitHub: Issues ochish
+Email: support@afimperiya.uz
+Telegram: @afimperiya_support
+
+═══════════════════════════════════════════════════════════════════════
+
+Built with ❤️ in Uzbekistan 🇺🇿
+Version 1.0.0 | November 2024
+

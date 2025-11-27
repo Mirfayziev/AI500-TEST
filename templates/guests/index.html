@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Mehmonlar{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Mehmonlar</h1>
+    <a href="{{ url_for('guests_create') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Yangi mehmon
+    </a>
+</div>
+<div style="margin-top: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);">
+        <thead style="background: var(--dark); color: white;">
+            <tr>
+                <th style="padding: 1rem; text-align: left;">Mehmon</th>
+                <th style="padding: 1rem; text-align: left;">Tashkilot</th>
+                <th style="padding: 1rem; text-align: left;">Kelgan</th>
+                <th style="padding: 1rem; text-align: left;">Ketgan</th>
+                <th style="padding: 1rem; text-align: right;">Xarajat</th>
+                <th style="padding: 1rem; text-align: center;">Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for guest in guests %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 1rem;">
+                    <strong>{{ guest.full_name }}</strong><br>
+                    <small style="color: var(--text-light);">{{ guest.position }}</small>
+                </td>
+                <td style="padding: 1rem;">{{ guest.organization or '-' }}</td>
+                <td style="padding: 1rem;">{{ guest.arrival_date.strftime('%d.%m.%Y') if guest.arrival_date else '-' }}</td>
+                <td style="padding: 1rem;">{{ guest.departure_date.strftime('%d.%m.%Y') if guest.departure_date else '-' }}</td>
+                <td style="padding: 1rem; text-align: right; font-weight: 600;">
+                    {{ '{:,.0f}'.format(guest.total_expense) if guest.total_expense else '0' }} so'm
+                </td>
+                <td style="padding: 1rem; text-align: center;">
+                    <a href="{{ url_for('guests_export_pdf', id=guest.id) }}" class="btn btn-outline" style="padding: 0.5rem 1rem;">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

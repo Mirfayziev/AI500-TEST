@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Tug'ilgan Kunlar{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Oylik Tug'ilgan Kunlar</h1>
+    <a href="{{ url_for('celebrations') }}" class="btn btn-outline">
+        <i class="fas fa-arrow-left"></i> Orqaga
+    </a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+    {% for user in birthdays %}
+    <div class="card" style="text-align: center;">
+        <div style="width: 100px; height: 100px; margin: 0 auto 1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; font-weight: 700;">
+            {{ user.full_name[0] }}
+        </div>
+        <h3>{{ user.full_name }}</h3>
+        <p style="color: var(--text-light);">{{ user.position }}</p>
+        <p style="color: var(--text-light);">
+            <i class="fas fa-birthday-cake"></i> {{ user.created_at.strftime('%d %B') if user.created_at else '-' }}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

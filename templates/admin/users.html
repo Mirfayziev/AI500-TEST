@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Foydalanuvchilar{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Foydalanuvchilar</h1>
+</div>
+
+<div class="card">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--border);">
+                <th style="padding: 1rem; text-align: left;">Ism</th>
+                <th style="padding: 1rem; text-align: left;">Email</th>
+                <th style="padding: 1rem; text-align: left;">Rol</th>
+                <th style="padding: 1rem; text-align: left;">Holat</th>
+                <th style="padding: 1rem; text-align: left;">Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 1rem;">{{ user.full_name }}</td>
+                <td style="padding: 1rem;">{{ user.email }}</td>
+                <td style="padding: 1rem;">
+                    <form method="POST" action="{{ url_for('admin_change_user_role', id=user.id) }}" style="display: inline;">
+                        <select name="role" onchange="this.form.submit()" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border);">
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                            <option value="rahbar" {% if user.role == 'rahbar' %}selected{% endif %}>Rahbar</option>
+                            <option value="xodim" {% if user.role == 'xodim' %}selected{% endif %}>Xodim</option>
+                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                        </select>
+                    </form>
+                </td>
+                <td style="padding: 1rem;">
+                    <span class="status-badge {{ 'success' if user.is_active else 'danger' }}">
+                        {{ 'Faol' if user.is_active else 'Faol emas' }}
+                    </span>
+                </td>
+                <td style="padding: 1rem;">
+                    <form method="POST" action="{{ url_for('admin_toggle_user_status', id=user.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-outline" style="padding: 0.5rem 1rem;">
+                            {{ 'Faolsizlantirish' if user.is_active else 'Faollashtirish' }}
+                        </button>
+                    </form>
+                    <a href="{{ url_for('employees_view', id=user.id) }}" class="btn btn-outline" style="padding: 0.5rem 1rem;">
+                        Ko'rish
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

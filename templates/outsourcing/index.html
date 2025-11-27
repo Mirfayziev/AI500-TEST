@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Outsorsing Xizmatlari{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Outsorsing Xizmatlari</h1>
+    <a href="{{ url_for('outsourcing_create') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Yangi xizmat
+    </a>
+</div>
+<div style="margin-top: 2rem;">
+    {% for service in services %}
+    <div class="card" style="margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+                <h3>{{ service.service_name }}</h3>
+                <p style="color: var(--text-light);">{{ service.provider_name }}</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <p><strong>Shartnoma:</strong> {{ service.contract_number }}</p>
+                    <p><strong>Boshlangan:</strong> {{ service.start_date.strftime('%d.%m.%Y') if service.start_date else '-' }}</p>
+                    <p><strong>Tugaydi:</strong> {{ service.end_date.strftime('%d.%m.%Y') if service.end_date else '-' }}</p>
+                    <p><strong>Narx:</strong> {{ '{:,.0f}'.format(service.cost) if service.cost else '-' }} so'm</p>
+                </div>
+            </div>
+            <span class="status-badge success">{{ service.status or 'active' }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Topshriqlar{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Topshriqlar</h1>
+    {% if current_user.role == 'admin' %}
+    <a href="{{ url_for('tasks_create') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Yangi topshiriq
+    </a>
+    {% endif %}
+</div>
+
+<style>
+    .tasks-grid {
+        display: grid;
+        gap: 1rem;
+    }
+    .task-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        border-left: 4px solid;
+    }
+    .task-card.success { border-left-color: var(--secondary); }
+    .task-card.warning { border-left-color: #ffc107; }
+    .task-card.danger { border-left-color: var(--danger); }
+    .task-card.info { border-left-color: var(--primary); }
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+    .task-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .task-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+</style>
+
+<div class="tasks-grid">
+    {% for task in tasks %}
+    <div class="task-card {{ get_task_status_color(task) }}">
+        <div class="task-header">
+            <div>
+                <h3 class="task-title">{{ task.title }}</h3>
+                <p style="color: var(--text-light); margin-top: 0.5rem;">{{ task.description[:100] }}...</p>
+            </div>
+            <span class="status-badge {{ get_task_status_color(task) }}">
+                {{ task.status|title }}
+            </span>
+        </div>
+        <div class="task-meta">
+            <span><i class="fas fa-calendar"></i> {{ task.due_date.strftime('%d.%m.%Y') if task.due_date else 'Belgilanmagan' }}</span>
+            <span><i class="fas fa-user"></i> {{ task.creator.full_name }}</span>
+        </div>
+        <div style="margin-top: 1rem;">
+            <a href="{{ url_for('tasks_view', id=task.id) }}" class="btn btn-outline">
+                <i class="fas fa-eye"></i> Ko'rish
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
