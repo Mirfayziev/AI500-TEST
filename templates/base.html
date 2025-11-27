@@ -2,32 +2,33 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>AF Imperiya — Enterprise System</title>
+    <title>{{ title if title else "AF Imperiya" }}</title>
 
     <!-- FONT -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- ICONS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
         body {
+            margin: 0;
             font-family: 'Inter', sans-serif;
             background: #0b0f19;
             color: #e5e7eb;
-            overflow-x:hidden;
+            display: flex;
+            overflow-x: hidden;
         }
 
         /* SIDEBAR */
         .sidebar {
+            width: 190px;
+            height: 100vh;
             position: fixed;
             left: 0; top: 0;
-            width: 240px;
-            height: 100vh;
-            background: linear-gradient(180deg, #081120, #0c1428 85%);
-            padding: 25px 18px;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+            background: #0c1527;
+            padding: 18px 12px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.45);
             overflow-y: auto;
         }
 
@@ -35,108 +36,108 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: 22px;
+            padding-left: 5px;
         }
 
         .brand img {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px #3b82f655, 0 0 10px #1d4ed8aa;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 14px #1e3a8a99;
+        }
+
+        .brand-text {
+            line-height: 1.1;
         }
 
         .brand-text b {
-            font-size: 17px;
-            color: #f1f5f9;
+            font-size: 15px;
         }
 
         .brand-text span {
-            font-size: 11px;
-            opacity: 0.6;
+            font-size: 10px;
+            opacity: 0.55;
         }
 
         /* MENU */
         .menu-title {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.45;
-            margin-top: 18px;
-            margin-bottom: 6px;
+            margin: 10px 0 4px 4px;
             letter-spacing: 1px;
         }
 
         .menu a {
             display: flex;
-            text-decoration: none;
             align-items: center;
-            padding: 10px 12px;
-            font-size: 14px;
+            gap: 8px;
+            padding: 9px 10px;
+            font-size: 13px;
+            text-decoration: none;
             color: #cbd5e1;
-            border-radius: 10px;
+            border-radius: 8px;
             transition: .25s;
-            gap: 10px;
         }
 
         .menu a i {
             width: 18px;
-            text-align:center;
+            text-align: center;
+            font-size: 14px;
         }
 
         .menu a:hover,
         .menu a.active {
-            background: rgba(59,130,246,0.2);
+            background: rgba(59,130,246,0.18);
             color: #fff;
-            box-shadow: 0 0 10px #3b82f644;
         }
 
-        /* TOPNAV */
+        /* TOP NAV */
         .topnav {
-            margin-left: 240px;
-            height: 75px;
+            margin-left: 190px;
+            height: 65px;
             background: rgba(255,255,255,0.04);
             border-bottom: 1px solid rgba(255,255,255,0.07);
-            backdrop-filter: blur(25px);
+            backdrop-filter: blur(18px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 28px;
+            padding: 0 26px;
         }
 
         .topnav-title {
-            font-size: 22px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 600;
         }
 
-        .user {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
+        /* USER AVATAR */
         .user-circle {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
             background: #22c55e;
             display:flex;
             justify-content:center;
             align-items:center;
-            border-radius:50%;
+            font-size:17px;
             font-weight:700;
-            color:white;
-            font-size:18px;
         }
 
         /* CONTENT */
         .content {
-            margin-left: 240px;
-            padding: 32px;
+            margin-left: 190px;
+            padding: 30px;
         }
 
-        /* SCROLL */
-        ::-webkit-scrollbar { width: 7px; }
-        ::-webkit-scrollbar-track { background:#0f172a; }
-        ::-webkit-scrollbar-thumb { background:#1e3a8a; border-radius:4px; }
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb {
+            background: #1e3a8a;
+            border-radius: 4px;
+        }
     </style>
+
 </head>
 
 <body>
@@ -147,67 +148,69 @@
         <img src="/static/logo.png">
         <div class="brand-text">
             <b>AF IMPERIYA</b><br>
-            <span>ENTERPRISE SYSTEM</span>
+            <span>ENTERPRISE</span>
         </div>
     </div>
 
     <div class="menu">
+
         <div class="menu-title">ASOSIY</div>
 
-        <a href="/dashboard" class="{% if request.path=='/dashboard' %}active{% endif %}">
-            <i class="fa-solid fa-chart-simple"></i> Dashboard
+        <a href="/dashboard" class="{% if request.path.startswith('/dashboard') %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i> Dashboard
         </a>
 
-        <a href="/tasks" class="{% if 'tasks' in request.path %}active{% endif %}">
+        <a href="/tasks" class="{% if request.path.startswith('/tasks') %}active{% endif %}">
             <i class="fa-solid fa-list-check"></i> Topshiriqlar
         </a>
 
         <div class="menu-title">MODULLAR</div>
 
-        <a href="/solar" class="{% if 'solar' in request.path %}active{% endif %}">
-            <i class="fa-solid fa-sun"></i> Quyosh panellari
+        <a href="/solarpanels" class="{% if request.path.startswith('/solarpanels') %}active{% endif %}">
+            <i class="fa-solid fa-sun"></i> Quyosh paneli
         </a>
 
-        <a href="/employees" class="{% if 'employees' in request.path %}active{% endif %}">
+        <a href="/employees" class="{% if request.path.startswith('/employees') %}active{% endif %}">
             <i class="fa-solid fa-user-group"></i> Xodimlar
         </a>
 
-        <a href="/transport" class="{% if 'transport' in request.path %}active{% endif %}">
+        <a href="/vehicles" class="{% if request.path.startswith('/vehicles') %}active{% endif %}">
             <i class="fa-solid fa-car"></i> Transportlar
         </a>
 
-        <a href="/buildings" class="{% if 'buildings' in request.path %}active{% endif %}">
+        <a href="/buildings" class="{% if request.path.startswith('/buildings') %}active{% endif %}">
             <i class="fa-solid fa-building"></i> Binolar
         </a>
 
-        <a href="/outsourcing" class="{% if 'outsourcing' in request.path %}active{% endif %}">
+        <a href="/outsourcing" class="{% if request.path.startswith('/outsourcing') %}active{% endif %}">
             <i class="fa-solid fa-handshake"></i> Outsorsing
         </a>
 
-        <a href="/contracts" class="{% if 'contracts' in request.path %}active{% endif %}">
+        <a href="/contracts" class="{% if request.path.startswith('/contracts') %}active{% endif %}">
             <i class="fa-solid fa-file-signature"></i> Shartnomalar
         </a>
 
-        <a href="/guests" class="{% if 'guests' in request.path %}active{% endif %}">
-            <i class="fa-solid fa-clipboard-user"></i> Mehmonlar
+        <a href="/guests" class="{% if request.path.startswith('/guests') %}active{% endif %}">
+            <i class="fa-solid fa-id-card"></i> Mehmonlar
         </a>
 
-        <a href="/organizations" class="{% if 'organizations' in request.path %}active{% endif %}">
+        <a href="/organizations" class="{% if request.path.startswith('/organizations') %}active{% endif %}">
             <i class="fa-solid fa-sitemap"></i> Tashkilotlar
         </a>
 
-        <a href="/celebrations" class="{% if 'celebrations' in request.path %}active{% endif %}">
-            <i class="fa-solid fa-gift"></i> Tabriknomalar
+        <a href="/celebrations" class="{% if request.path.startswith('/celebrations') %}active{% endif %}">
+            <i class="fa-solid fa-calendar-days"></i> Tabriklar
         </a>
 
-        <a href="/greens" class="{% if 'greens' in request.path %}active{% endif %}">
+        <a href="/greenspaces" class="{% if request.path.startswith('/greenspaces') %}active{% endif %}">
             <i class="fa-solid fa-seedling"></i> Yashil makonlar
         </a>
 
         <div class="menu-title">AI</div>
-        <a href="/ai-demo" class="{% if 'ai-demo' in request.path %}active{% endif %}">
+        <a href="/demo" class="{% if request.path.startswith('/demo') %}active{% endif %}">
             <i class="fa-solid fa-robot"></i> AI Demo
         </a>
+
     </div>
 </div>
 
@@ -215,10 +218,8 @@
 <div class="topnav">
     <div class="topnav-title">AF Imperiya — Rahbar Paneli</div>
 
-    <div class="user">
-        <div class="user-circle">
-            {{ current_user.full_name[0] if current_user else 'A' }}
-        </div>
+    <div class="user-circle">
+        {{ current_user.full_name[0] if current_user else 'A' }}
     </div>
 </div>
 
