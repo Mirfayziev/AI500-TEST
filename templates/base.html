@@ -1,148 +1,181 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8" />
-    <title>AF IMPERIYA SYSTEM</title>
+    <meta charset="UTF-8">
+    <title>AF Imperiya — Enterprise System</title>
+
+    <!-- Global Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
             margin: 0;
-            background: #0d1116;
-            font-family: "Inter", sans-serif;
-            color: #e7ecf3;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg,#0b1120,#080c17 85%);
+            color: #e5e7eb;
         }
 
-        /* SIDEBAR */
+        /* ===== SIDEBAR ===== */
         .sidebar {
-            width: 240px;
+            width: 250px;
             height: 100vh;
             position: fixed;
-            background: linear-gradient(180deg,#0f172a,#0a0f18 80%);
-            padding: 28px 20px;
-            box-shadow: 5px 0 20px rgba(0,0,0,0.4);
+            left: 0;
+            top: 0;
+            background: linear-gradient(180deg,#0f172a,#0b1222);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.45);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .brand {
+        /* LOGO BOX */
+        .brand-box {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 40px;
+            gap: 14px;
+            margin-bottom: 35px;
         }
 
-        .brand .logo {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: radial-gradient(circle,#3b82f6,#1e40af);
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: radial-gradient(circle,#3b82f6,#1e3a8a);
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 22px;
             font-weight: 800;
-            font-size: 20px;
+            color: white;
+            box-shadow: 0 0 28px #3b82f677;
         }
 
-        .brand div span {
-            display: block;
-            font-size: 14px;
-            opacity: 0.8;
+        .brand-title {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .brand-title b {
+            font-size: 16px;
+            color: #f1f5f9;
+        }
+
+        .brand-title span {
+            font-size: 11px;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        /* MENU STYLES */
+        .menu {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .menu a {
+            text-decoration: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 14px;
-            text-decoration: none;
             color: #cbd5e1;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: .2s;
-            margin-bottom: 5px;
+            transition: .25s;
         }
 
         .menu a:hover,
         .menu a.active {
-            background: rgba(59,130,246,0.15);
-            color: #fff;
+            background: rgba(59,130,246,0.18);
+            color: white;
         }
 
-        /* TOP NAV */
+        /* ===== TOP NAV ===== */
         .topnav {
-            margin-left: 240px;
-            height: 70px;
-            background: rgba(255,255,255,0.03);
+            margin-left: 250px;
+            height: 72px;
+            background: rgba(255,255,255,0.05);
             backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 25px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 28px;
         }
 
-        .userbox {
+        .topnav-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .user-box {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
-        .user {
-            width: 38px;
-            height: 38px;
-            background: #22c55e;
+        .user-circle {
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
+            background: #22c55e;
+            color: white;
+            font-weight: 700;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
-            font-weight: bold;
         }
 
-        /* PAGE CONTENT */
+        /* ===== PAGE CONTENT ===== */
         .content {
-            margin-left: 240px;
+            margin-left: 250px;
             padding: 30px;
-        }
-
-        /* GLASS CARD */
-        .glass {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 0 28px rgba(0,0,0,0.35);
+            padding-top: 35px;
         }
 
     </style>
+
 </head>
 
 <body>
 
+    <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="brand">
-            <div class="logo">AF</div>
-            <div>
+
+        <div class="brand-box">
+            <div class="brand-logo">AF</div>
+            <div class="brand-title">
                 <b>AF IMPERIYA</b>
                 <span>ENTERPRISE SYSTEM</span>
             </div>
         </div>
 
         <div class="menu">
-            <a href="/dashboard" class="active">📊 Dashboard</a>
-            <a href="/tasks">📝 Topshiriqlar</a>
-            <a href="/solar">🔆 Quyosh panellari</a>
-            <a href="/employees">👥 Xodimlar</a>
-            <a href="/transport">🚗 Transportlar</a>
+            <a href="/dashboard" class="{% if request.path=='/dashboard' %}active{% endif %}">📊 Dashboard</a>
+            <a href="/tasks" class="{% if 'tasks' in request.path %}active{% endif %}">📝 Topshiriqlar</a>
+            <a href="/solar" class="{% if 'solar' in request.path %}active{% endif %}">🔆 Quyosh panellari</a>
+            <a href="/employees" class="{% if 'employees' in request.path %}active{% endif %}">👥 Xodimlar</a>
+            <a href="/transport" class="{% if 'transport' in request.path %}active{% endif %}">🚗 Transportlar</a>
         </div>
+
     </div>
 
+    <!-- TOP NAV -->
     <div class="topnav">
-        <div></div>
-        <div class="userbox">
-            <div class="user">A</div>
+        <div class="topnav-title">AF Imperiya — Rahbar Paneli</div>
+
+        <div class="user-box">
+            <div class="user-circle">
+                {{ current_user.full_name[0] if current_user else 'A' }}
+            </div>
         </div>
     </div>
 
+    <!-- CONTENT -->
     <div class="content">
         {% block content %}{% endblock %}
     </div>
