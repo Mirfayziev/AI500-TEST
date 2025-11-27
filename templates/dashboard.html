@@ -2,209 +2,266 @@
 {% block content %}
 
 <style>
-/* GLOBAL */
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 28px;
+    gap: 22px;
+    margin-bottom: 25px;
 }
 
-/* KPI CARDS */
-.kpi-box {
-    background: linear-gradient(135deg, rgba(32,39,62,0.9), rgba(16,19,28,0.95));
-    padding: 22px;
-    border-radius: 18px;
-    box-shadow: 0 6px 22px rgba(0,0,0,0.45);
-    border: 1px solid rgba(255,255,255,0.06);
-    transition: .25s;
-}
-
-.kpi-box:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
+.kpi-card {
+    background: linear-gradient(180deg,#111827,#0e1525);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 0 18px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .kpi-title {
     font-size: 15px;
-    opacity: 0.7;
-    margin-bottom: 8px;
+    opacity: .75;
+    margin-bottom: 5px;
 }
 
-.kpi-value {
-    font-size: 34px;
+.kpi-number {
+    font-size: 38px;
     font-weight: 700;
 }
 
-/* MAIN CONTENT GRID */
-.panel-grid {
+.section-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 22px;
+    margin-bottom: 28px;
 }
 
-/* BIG PANELS */
-.panel {
-    background: linear-gradient(145deg, rgba(26,32,48,0.9), rgba(14,17,26,0.95));
-    padding: 20px;
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 26px;
     border-radius: 18px;
-    box-shadow: 0 6px 30px rgba(0,0,0,0.50);
-    border: 1px solid rgba(255,255,255,0.05);
-    height: 100%;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 25px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.06);
 }
 
-/* PANEL TITLES */
-.panel h3 {
-    margin: 0 0 16px;
+.card-title {
     font-size: 18px;
-    opacity: 0.85;
+    margin-bottom: 18px;
+    font-weight: 600;
 }
 
-/* TASK LIST */
-.task-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+.tasks-list div {
+    margin-bottom: 14px;
     font-size: 15px;
 }
 
-.task-item:last-child {
-    border-bottom: none;
+.bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
 }
 
-/* CHART SIZE */
+/* CANVAS FIX */
 .chart-box {
-    height: 230px;
+    width: 100%;
+    height: 270px;
+    position: relative;
 }
 
 </style>
 
-<h1 style="font-size:30px; margin-bottom:25px;">AF Imperiya – Rahbar Paneli</h1>
+<h1 style="margin-bottom: 25px;">AF Imperiya — Rahbar Paneli</h1>
 
-<!-- KPI CARDS -->
+<!-- ========== KPI SECTION ========== -->
 <div class="dashboard-grid">
 
-    <div class="kpi-box">
+    <div class="kpi-card">
         <div class="kpi-title">Jami topshiriqlar</div>
-        <div class="kpi-value" style="color:#60A5FA;">372</div>
+        <div class="kpi-number">{{ total_tasks }}</div>
     </div>
 
-    <div class="kpi-box">
+    <div class="kpi-card">
         <div class="kpi-title">Bajarilgan</div>
-        <div class="kpi-value" style="color:#4ADE80;">162</div>
+        <div class="kpi-number" style="color:#22c55e;">{{ completed }}</div>
     </div>
 
-    <div class="kpi-box">
+    <div class="kpi-card">
         <div class="kpi-title">Kechikkan</div>
-        <div class="kpi-value" style="color:#F87171;">9</div>
+        <div class="kpi-number" style="color:#ef4444;">{{ overdue }}</div>
     </div>
 
-    <div class="kpi-box">
+    <div class="kpi-card">
         <div class="kpi-title">Yangi topshiriqlar</div>
-        <div class="kpi-value" style="color:#38BDF8;">26</div>
+        <div class="kpi-number" style="color:#3b82f6;">{{ new_tasks }}</div>
     </div>
 
 </div>
 
-<!-- 2 COLUMN GRID -->
-<div class="panel-grid">
 
-    <!-- LEFT SIDE -->
-    <div>
+<!-- ========== SECTION 2 ========== -->
+<div class="section-grid">
 
-        <!-- TASK OVERVIEW -->
-        <div class="panel" style="margin-bottom:20px;">
-            <h3>Tasks Overview</h3>
+    <div class="card">
+        <div class="card-title">Tasks Overview</div>
 
-            <div class="task-item">
-                <span>Iyonov</span>
-                <span>51</span>
+        <div class="tasks-list">
+            {% for task in top_users %}
+            <div>
+                <b>{{ task.user }}</b> — {{ task.count }}
             </div>
-
-            <div class="task-item">
-                <span>Reshatnov</span>
-                <span>102</span>
-            </div>
-
-            <div class="task-item">
-                <span>Audamsatov</span>
-                <span>9</span>
-            </div>
-
-            <div class="task-item">
-                <span>Tarsanev</span>
-                <span>13</span>
-            </div>
+            {% endfor %}
         </div>
-
-        <!-- PRIORITIES (DOUGHNUT CHART) -->
-        <div class="panel">
-            <h3>Task Priorities</h3>
-            <canvas id="priorityChart" class="chart-box"></canvas>
-        </div>
-
     </div>
 
-    <!-- RIGHT SIDE -->
-    <div>
-        <!-- EMPLOYEE ACTIVITY -->
-        <div class="panel" style="margin-bottom:20px;">
-            <h3>Xodimlar Faolligi</h3>
-            <canvas id="empChart" class="chart-box"></canvas>
-        </div>
-
-        <!-- SOLAR PANEL -->
-        <div class="panel">
-            <h3>Quyosh panellari</h3>
-            <canvas id="solarChart" class="chart-box"></canvas>
+    <div class="card">
+        <div class="card-title">Xodimlar Faolligi</div>
+        <div class="chart-box">
+            <canvas id="employeeChart"></canvas>
         </div>
     </div>
 
 </div>
 
-<!-- SCRIPTS -->
+
+
+<!-- ========== SECTION 3 ========== -->
+<div class="bottom-grid">
+
+    <div class="card">
+        <div class="card-title">Task Priorities</div>
+        <div class="chart-box">
+            <canvas id="priorityChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Quyosh panellari</div>
+        <div class="chart-box">
+            <canvas id="solarChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Xodimlar Ish Haqi Statistikasi</div>
+        <div class="chart-box">
+            <canvas id="salaryChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- ================== SCRIPT PART ================== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
-// Employee activity — LINE
-new Chart(document.getElementById('empChart'), {
-    type: 'line',
+/***********************
+  EMPLOYEE ACTIVITY CHART
+************************/
+const ctx = document.getElementById("employeeChart").getContext("2d");
+
+let gradient = ctx.createLinearGradient(0,0,0,300);
+gradient.addColorStop(0, "rgba(59,130,246,0.55)");
+gradient.addColorStop(1, "rgba(59,130,246,0.05)");
+
+new Chart(ctx, {
+    type: "line",
     data: {
-        labels: ['Dsh','Ssh','Chor','Pay','Jum','Shan','Yak'],
+        labels: ["Dsh","Ssh","Chor","Pay","Jum","Shan","Yak"],
         datasets: [{
-            label: 'Faollik',
-            data: [40,45,38,65,58,73,55],
-            borderColor: '#3b82f6',
+            label: "Faollik",
+            data: [40, 45, 38, 60, 55, 72, 50],
+            borderColor: "#3b82f6",
+            backgroundColor: gradient,
             borderWidth: 3,
-            fill: false,
-            tension: 0.4
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: "#3b82f6"
         }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend:{ labels:{ color:"#bcd0ff" }}},
+        scales: {
+            y: { ticks:{ color:"#90a4c6" }, grid:{ color:"rgba(255,255,255,0.04)"} },
+            x: { ticks:{ color:"#90a4c6" }, grid:{ display:false }}
+        }
     }
 });
 
-// Solar panel — BAR
-new Chart(document.getElementById('solarChart'), {
-    type: 'bar',
+
+
+/***********************
+  PRIORITY DONUT CHART
+************************/
+new Chart(document.getElementById("priorityChart"), {
+    type: "doughnut",
     data: {
-        labels: ['09:00','10:00','11:00','12:00','13:00'],
+        labels: ["Urgent", "High", "Normal", "Low"],
         datasets: [{
-            label: 'kW',
-            data: [3.2,4.1,5.0,5.4,5.1],
-            backgroundColor: '#facc15'
+            data: [25, 40, 25, 10],
+            backgroundColor: ["#ef4444","#f97316","#3b82f6","#94a3b8"],
+            borderWidth: 0
         }]
+    },
+    options: {
+        cutout: "65%",
+        plugins:{ legend:{ labels:{ color:"#bcd0ff" }}}
     }
 });
 
-// PRIORITIES — DONUT
-new Chart(document.getElementById('priorityChart'), {
-    type: 'doughnut',
+
+/***********************
+  SOLAR PANEL BAR CHART
+************************/
+new Chart(document.getElementById("solarChart"), {
+    type: "bar",
     data: {
-        labels: ['Urgent','High','Normal','Low'],
+        labels: ["09:00","10:00","11:00","12:00","13:00"],
         datasets: [{
-            data: [25,40,25,10],
-            backgroundColor: ['#ef4444','#f97316','#3b82f6','#64748b']
+            label: "kW",
+            data: [3,4,5,6,5],
+            backgroundColor: "#facc15",
+            borderRadius: 6
         }]
+    },
+    options: {
+        plugins:{ legend:{ labels:{ color:"#bcd0ff" }}},
+        scales: {
+            y:{ ticks:{ color:"#90a4c6" }, grid:{ color:"rgba(255,255,255,0.04)" }},
+            x:{ ticks:{ color:"#90a4c6" }, grid:{ display:false }}
+        }
+    }
+});
+
+
+/***********************
+  SALARY CHART
+************************/
+new Chart(document.getElementById("salaryChart"), {
+    type: "line",
+    data: {
+        labels: ["Yan","Fev","Mar","Apr","May","Iyun"],
+        datasets: [{
+            label: "So'm",
+            data: [400, 600, 700, 500, 950, 850],
+            borderColor: "#22c55e",
+            borderWidth: 3,
+            pointRadius: 4,
+            tension: 0.4,
+            backgroundColor: "rgba(34,197,94,0.12)"
+        }]
+    },
+    options: {
+        plugins:{ legend:{ labels:{ color:"#bcd0ff" }}},
+        scales: {
+            y:{ ticks:{ color:"#90a4c6" }, grid:{ color:"rgba(255,255,255,0.04)" }},
+            x:{ ticks:{ color:"#90a4c6" }, grid:{ display:false }}
+        }
     }
 });
 
