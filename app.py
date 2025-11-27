@@ -7,6 +7,7 @@ import os
 import io
 import json
 from sqlalchemy import func, or_, and_
+from services.telegram_service import send_push
 
 # Import models and config
 from models import *
@@ -1419,6 +1420,19 @@ def api_dashboard_chart_data():
         'tasks_by_status': [{'status': status, 'count': count} for status, count in tasks_by_status],
         'monthly_tasks': [{'month': month, 'count': count} for month, count in monthly_tasks]
     })
+@app.route('/api/save_chat_id', methods=['POST'])
+def save_chat_id():
+    data = request.json
+    username = data.get("username")
+    chat_id = data.get("chat_id")
+
+    user = User.query.filter_by(username=username).first()
+    if user:
+        user.telegram_chat_id = str(chat_id)
+        db.session.commit()
+        return {"status": "saved"}
+
+    return {"status": "user_not_found"}
 
 # ==================== ERROR HANDLERS ====================
 
