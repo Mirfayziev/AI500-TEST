@@ -1498,17 +1498,23 @@ def api_dashboard_chart_data():
     })
 @app.route('/api/save_chat_id', methods=['POST'])
 def save_chat_id():
-    data = request.json
-    username = data.get("username")
+    data = request.get_json()
+    telegram_username = data.get("username")
     chat_id = data.get("chat_id")
 
-    user = User.query.filter_by(username=username).first()
-    if user:
-        user.telegram_chat_id = str(chat_id)
-        db.session.commit()
-        return {"status": "saved"}
+    if not telegram_username:
+        return {"error": "Telegram username yo'q"}, 400
 
-    return {"status": "user_not_found"}
+    user = User.query.filter_by(telegram_username=telegram_username).first()
+
+    if not user:
+        return {"error": "Foydalanuvchi topilmadi"}, 404
+
+    user.telegram_chat_id = chat_id
+    db.session.commit()
+
+    return {"success": True}, 200
+
 
 # ==================== ERROR HANDLERS ====================
 
