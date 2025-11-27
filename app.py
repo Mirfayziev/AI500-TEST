@@ -93,20 +93,19 @@ def save_file(file, folder):
         return filepath
     return None
 
-def get_task_status_color(task):
-    """Returns color indicator for task status"""
-    if task.status == 'completed':
+def get_task_status_color(status, due_date=None):
+    if status == 'completed':
         return 'success'
-    if task.due_date:
-        days_left = (task.due_date - datetime.utcnow()).days
+    if due_date:
+        days_left = (due_date - datetime.utcnow()).days
         if days_left < 0:
-            return 'danger'  # red - overdue
+            return 'danger'
         elif days_left <= 3:
-            return 'danger'  # red - 3 days or less
+            return 'danger'
         elif days_left <= 5:
-            return 'warning'  # orange - 5 days or less
+            return 'warning'
         elif days_left <= 7:
-            return 'info'  # yellow - 7 days or less
+            return 'info'
     return 'primary'
 
 def send_telegram_notification(user_id, message):
