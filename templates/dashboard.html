@@ -1,75 +1,213 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 style="font-size:26px; margin-bottom:20px;">Rahbar paneli</h1>
+<style>
+/* GLOBAL */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
 
-<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px;">
-    <div class="glass">
-        <h3>Topshiriqlar</h3>
-        <p style="font-size:32px; font-weight:700;">372</p>
+/* KPI CARDS */
+.kpi-box {
+    background: linear-gradient(135deg, rgba(32,39,62,0.9), rgba(16,19,28,0.95));
+    padding: 22px;
+    border-radius: 18px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.45);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: .25s;
+}
+
+.kpi-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
+}
+
+.kpi-title {
+    font-size: 15px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 34px;
+    font-weight: 700;
+}
+
+/* MAIN CONTENT GRID */
+.panel-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+}
+
+/* BIG PANELS */
+.panel {
+    background: linear-gradient(145deg, rgba(26,32,48,0.9), rgba(14,17,26,0.95));
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.50);
+    border: 1px solid rgba(255,255,255,0.05);
+    height: 100%;
+}
+
+/* PANEL TITLES */
+.panel h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    opacity: 0.85;
+}
+
+/* TASK LIST */
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 15px;
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+/* CHART SIZE */
+.chart-box {
+    height: 230px;
+}
+
+</style>
+
+<h1 style="font-size:30px; margin-bottom:25px;">AF Imperiya – Rahbar Paneli</h1>
+
+<!-- KPI CARDS -->
+<div class="dashboard-grid">
+
+    <div class="kpi-box">
+        <div class="kpi-title">Jami topshiriqlar</div>
+        <div class="kpi-value" style="color:#60A5FA;">372</div>
     </div>
 
-    <div class="glass">
-        <h3>Bajarilgan</h3>
-        <p style="font-size:32px; font-weight:700; color:#22c55e;">162</p>
+    <div class="kpi-box">
+        <div class="kpi-title">Bajarilgan</div>
+        <div class="kpi-value" style="color:#4ADE80;">162</div>
     </div>
 
-    <div class="glass">
-        <h3>Kechikkan</h3>
-        <p style="font-size:32px; font-weight:700; color:#ef4444;">9</p>
+    <div class="kpi-box">
+        <div class="kpi-title">Kechikkan</div>
+        <div class="kpi-value" style="color:#F87171;">9</div>
     </div>
 
-    <div class="glass">
-        <h3>Yangi</h3>
-        <p style="font-size:32px; font-weight:700; color:#3b82f6;">26</p>
+    <div class="kpi-box">
+        <div class="kpi-title">Yangi topshiriqlar</div>
+        <div class="kpi-value" style="color:#38BDF8;">26</div>
     </div>
+
 </div>
 
+<!-- 2 COLUMN GRID -->
+<div class="panel-grid">
 
-<div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:22px; margin-top:25px;">
+    <!-- LEFT SIDE -->
+    <div>
 
-    <div class="glass">
-        <h3>Xodimlar faolligi</h3>
-        <canvas id="empChart"></canvas>
+        <!-- TASK OVERVIEW -->
+        <div class="panel" style="margin-bottom:20px;">
+            <h3>Tasks Overview</h3>
+
+            <div class="task-item">
+                <span>Iyonov</span>
+                <span>51</span>
+            </div>
+
+            <div class="task-item">
+                <span>Reshatnov</span>
+                <span>102</span>
+            </div>
+
+            <div class="task-item">
+                <span>Audamsatov</span>
+                <span>9</span>
+            </div>
+
+            <div class="task-item">
+                <span>Tarsanev</span>
+                <span>13</span>
+            </div>
+        </div>
+
+        <!-- PRIORITIES (DOUGHNUT CHART) -->
+        <div class="panel">
+            <h3>Task Priorities</h3>
+            <canvas id="priorityChart" class="chart-box"></canvas>
+        </div>
+
     </div>
 
-    <div class="glass">
-        <h3>Quyosh panellari</h3>
-        <canvas id="solarChart"></canvas>
+    <!-- RIGHT SIDE -->
+    <div>
+        <!-- EMPLOYEE ACTIVITY -->
+        <div class="panel" style="margin-bottom:20px;">
+            <h3>Xodimlar Faolligi</h3>
+            <canvas id="empChart" class="chart-box"></canvas>
+        </div>
+
+        <!-- SOLAR PANEL -->
+        <div class="panel">
+            <h3>Quyosh panellari</h3>
+            <canvas id="solarChart" class="chart-box"></canvas>
+        </div>
     </div>
 
 </div>
 
-
+<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 
+// Employee activity — LINE
 new Chart(document.getElementById('empChart'), {
     type: 'line',
     data: {
         labels: ['Dsh','Ssh','Chor','Pay','Jum','Shan','Yak'],
         datasets: [{
             label: 'Faollik',
-            data: [30,45,40,60,55,70,50],
+            data: [40,45,38,65,58,73,55],
             borderColor: '#3b82f6',
             borderWidth: 3,
+            fill: false,
             tension: 0.4
         }]
     }
 });
 
+// Solar panel — BAR
 new Chart(document.getElementById('solarChart'), {
     type: 'bar',
     data: {
-        labels: ['10:00','11:00','12:00','13:00'],
+        labels: ['09:00','10:00','11:00','12:00','13:00'],
         datasets: [{
-            label: 'Quvvat (kW)',
-            data: [4.2,4.8,5.3,4.9],
+            label: 'kW',
+            data: [3.2,4.1,5.0,5.4,5.1],
             backgroundColor: '#facc15'
         }]
     }
 });
+
+// PRIORITIES — DONUT
+new Chart(document.getElementById('priorityChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Urgent','High','Normal','Low'],
+        datasets: [{
+            data: [25,40,25,10],
+            backgroundColor: ['#ef4444','#f97316','#3b82f6','#64748b']
+        }]
+    }
+});
+
 </script>
 
 {% endblock %}
