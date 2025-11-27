@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>AF Imperiya — Enterprise System</title>
 
-    <!-- Global Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -17,7 +17,7 @@
 
         /* ===== SIDEBAR ===== */
         .sidebar {
-            width: 250px;
+            width: 220px;
             height: 100vh;
             position: fixed;
             left: 0;
@@ -27,14 +27,15 @@
             padding: 22px;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
 
-        /* LOGO BOX */
+        /* LOGO */
         .brand-box {
             display: flex;
             align-items: center;
             gap: 14px;
-            margin-bottom: 35px;
+            margin-bottom: 25px;
         }
 
         .brand-logo {
@@ -48,13 +49,7 @@
             font-size: 22px;
             font-weight: 800;
             color: white;
-            box-shadow: 0 0 28px #3b82f677;
-        }
-
-        .brand-title {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
+            box-shadow: 0 0 22px #3b82f655, 0 0 18px #2563ebaa;
         }
 
         .brand-title b {
@@ -68,22 +63,24 @@
             letter-spacing: 1px;
         }
 
-        /* MENU STYLES */
-        .menu {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+        /* MENU SECTION TITLE */
+        .menu-section {
+            margin-top: 18px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            opacity: 0.45;
+            letter-spacing: 1px;
         }
 
+        /* MENU LINKS */
         .menu a {
             text-decoration: none;
-            padding: 12px 14px;
+            padding: 11px 13px;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             color: #cbd5e1;
             transition: .25s;
         }
@@ -94,12 +91,12 @@
             color: white;
         }
 
-        /* ===== TOP NAV ===== */
+        /* ===== TOPNAV ===== */
         .topnav {
-            margin-left: 250px;
+            margin-left: 220px;
             height: 72px;
             background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(14px);
+            backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255,255,255,0.07);
             display: flex;
             justify-content: space-between;
@@ -130,15 +127,14 @@
             align-items: center;
         }
 
-        /* ===== PAGE CONTENT ===== */
+        /* ===== CONTENT AREA ===== */
         .content {
-            margin-left: 250px;
+            margin-left: 220px;
             padding: 30px;
             padding-top: 35px;
         }
 
     </style>
-
 </head>
 
 <body>
@@ -155,18 +151,34 @@
         </div>
 
         <div class="menu">
+
+            <div class="menu-section">ASOSIY</div>
             <a href="/dashboard" class="{% if request.path=='/dashboard' %}active{% endif %}">📊 Dashboard</a>
             <a href="/tasks" class="{% if 'tasks' in request.path %}active{% endif %}">📝 Topshiriqlar</a>
+
+            <div class="menu-section">MODULLAR</div>
             <a href="/solar" class="{% if 'solar' in request.path %}active{% endif %}">🔆 Quyosh panellari</a>
             <a href="/employees" class="{% if 'employees' in request.path %}active{% endif %}">👥 Xodimlar</a>
             <a href="/transport" class="{% if 'transport' in request.path %}active{% endif %}">🚗 Transportlar</a>
-        </div>
+            <a href="/buildings" class="{% if 'buildings' in request.path %}active{% endif %}">🏢 Binolar</a>
+            <a href="/outsourcing" class="{% if 'outsourcing' in request.path %}active{% endif %}">🤝 Outsorsing</a>
+            <a href="/contracts" class="{% if 'contracts' in request.path %}active{% endif %}">📄 Shartnomalar</a>
+            <a href="/visitors" class="{% if 'visitors' in request.path %}active{% endif %}">🧾 Mehmonlar</a>
+            <a href="/organizations" class="{% if 'organizations' in request.path %}active{% endif %}">🏛 Tashkilotlar</a>
+            <a href="/greetings" class="{% if 'greetings' in request.path %}active{% endif %}">🎉 Tabriknomalar</a>
+            <a href="/greens" class="{% if 'greens' in request.path %}active{% endif %}">🌿 Yashil makonlar</a>
 
+            <div class="menu-section">AI</div>
+            <a href="/ai-demo" class="{% if 'ai-demo' in request.path %}active{% endif %}">🤖 AI Demo</a>
+
+        </div>
     </div>
 
     <!-- TOP NAV -->
     <div class="topnav">
-        <div class="topnav-title">AF Imperiya — Rahbar Paneli</div>
+        <div class="topnav-title">
+            AF Imperiya — Rahbar Paneli
+        </div>
 
         <div class="user-box">
             <div class="user-circle">
