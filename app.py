@@ -34,24 +34,35 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Iltimos, tizimga kiring'
 
-# ===== TELEGRAM WEBHOOKNI AVTOMATIK O'RNATISH =====
-import requests
+def set_telegram_webhook(webhook_url: str | None = None) -> str | None:
+    """
+    Telegram webhook'ni o'rnatish.
 
-def set_webhook():
-    webhook_url = Config.SERVER_URL.rstrip("/") + "/telegram-webhook"
-    bot_token = Config.TELEGRAM_BOT_TOKEN
+    IMPORTANT: Import vaqtida avtomatik chaqirmang (gunicorn/workerlar ko'payganda muammo bo'ladi).
+    """
+    bot_token = app.config.get("TELEGRAM_BOT_TOKEN") or ""
+    server_url = (app.config.get("SERVER_URL") or "").rstrip("/")
+    if not webhook_url:
+        webhook_url = f"{server_url}/telegram-webhook" if server_url else ""
 
-    if bot_token and webhook_url:
-        url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
-        resp = requests.post(url, json={"url": webhook_url})
-        print("Webhook response:", resp.text)
+    if not bot_token or not webhook_url:
+        return None
 
-with app.app_context():
+    import requests
+
+    url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+    resp = requests.post(url, json={"url": webhook_url}, timeout=10)
+    return resp.text
+
+
+@app.cli.command("set-telegram-webhook")
+def cli_set_telegram_webhook():
+    """Set Telegram webhook to SERVER_URL/telegram-webhook."""
     try:
-        set_webhook()
+        resp = set_telegram_webhook()
+        print(resp or "Webhook not set (missing TELEGRAM_BOT_TOKEN or SERVER_URL/TELEGRAM_WEBHOOK_URL)")
     except Exception as e:
         print("Webhook set error:", e)
-# ===============================================
 
 # Create upload folders
 UPLOAD_FOLDERS = ['uploads', 'uploads/vehicles', 'uploads/buildings', 'uploads/users',
@@ -112,9 +123,21 @@ def save_file(file, folder):
         return filepath
     return None
 
-def get_task_status_color(status, due_date=None):
+def get_task_status_color(task_or_status, due_date=None):
+    """
+    Template'larda ko'p joyda get_task_status_color(task) deb chaqirilgan.
+    Shu uchun Task obyektini ham, status stringini ham qabul qiladi.
+    """
+    status = task_or_status.status if hasattr(task_or_status, "status") else task_or_status
+    if due_date is None and hasattr(task_or_status, "due_date"):
+        due_date = task_or_status.due_date
+
     if status == 'completed':
         return 'success'
+    if status == 'review':
+        return 'info'
+    if status == 'rejected':
+        return 'danger'
     if due_date:
         days_left = (due_date - datetime.utcnow()).days
         if days_left < 0:
@@ -423,29 +446,6 @@ def tasks_view(id):
         get_task_status_color=get_task_status_color,
         assigned_user_ids=assigned_user_ids
     )
-
-
-    
-    # Check access - XODIMLAR FAQAT O'Z TOPSHIRIQLARINI KO'RADI
-    if current_user.role == 'xodim':
-        # Tekshirish - bu topshiriq xodimga biriktirilganmi?
-        is_assigned = any(ta.user_id == current_user.id for ta in task.assignments)
-        if not is_assigned:
-            flash('Bu topshiriqni ko\'rish huquqingiz yo\'q', 'danger')
-            return redirect(url_for('tasks'))
-    elif current_user.role not in ['admin', 'rahbar']:
-        # User role uchun ham cheklash
-        is_assigned = any(ta.user_id == current_user.id for ta in task.assignments)
-        if not is_assigned:
-            flash('Bu topshiriqni ko\'rish huquqingiz yo\'q', 'danger')
-            return redirect(url_for('tasks'))
-    
-    comments = TaskComment.query.filter_by(task_id=id).order_by(TaskComment.created_at.desc()).all()
-    
-    return render_template('tasks/view.html', 
-                         task=task, 
-                         comments=comments,
-                         get_task_status_color=get_task_status_color)
 
 @app.route('/tasks/<int:id>/update-status', methods=['POST'])
 @login_required
@@ -1506,10 +1506,24 @@ def api_dashboard_chart_data():
         ).filter(Task.id.in_(user_task_ids)).group_by(Task.status).all()
     
     # Monthly tasks creation
-    monthly_tasks = db.session.query(
-        func.strftime('%Y-%m', Task.created_at).label('month'),
-        func.count(Task.id)
-    ).group_by('month').order_by('month').limit(6).all()
+    # Database'ga qarab month grouping (SQLite vs PostgreSQL)
+    dialect = db.engine.dialect.name
+    if dialect == "postgresql":
+        month_expr = func.to_char(Task.created_at, "YYYY-MM")
+    else:
+        # SQLite (va ko'p boshqa) uchun
+        month_expr = func.strftime("%Y-%m", Task.created_at)
+
+    monthly_tasks = (
+        db.session.query(
+            month_expr.label("month"),
+            func.count(Task.id),
+        )
+        .group_by("month")
+        .order_by("month")
+        .limit(6)
+        .all()
+    )
     
     return jsonify({
         'tasks_by_status': [{'status': status, 'count': count} for status, count in tasks_by_status],
@@ -1521,9 +1535,19 @@ def save_chat_id():
 
     username = data.get("username")
     chat_id = data.get("chat_id")
+    provided_token = (
+        request.headers.get("X-TELEGRAM-LINK-TOKEN")
+        or request.args.get("token")
+        or data.get("token")
+    )
+    expected_token = app.config.get("TELEGRAM_LINK_TOKEN") or ""
 
     if not username:
         return {"error": "Username yo'q"}, 400
+
+    # Production'da token qo'yish tavsiya: TELEGRAM_LINK_TOKEN
+    if expected_token and provided_token != expected_token:
+        return {"error": "Unauthorized"}, 401
 
     user = User.query.filter_by(telegram_username=username).first()
 
