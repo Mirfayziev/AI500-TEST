@@ -209,14 +209,18 @@
         <div class="card-header">
             <h3 class="card-title">Topshiriqlar Statistikasi</h3>
         </div>
-        <canvas id="tasksChart" style="max-height: 300px;"></canvas>
+        <div style="height: 320px;">
+            <canvas id="tasksChart"></canvas>
+        </div>
     </div>
     
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Oxirgi 6 Oy</h3>
         </div>
-        <canvas id="monthlyChart" style="max-height: 300px;"></canvas>
+        <div style="height: 320px;">
+            <canvas id="monthlyChart"></canvas>
+        </div>
     </div>
 </div>
 {% endif %}
@@ -226,7 +230,20 @@
 {% block extra_js %}
 {% if current_user.role in ['admin', 'rahbar'] %}
 <script>
-// Tasks Pie Chart
+const theme = {
+    primary: '#0084d4',
+    success: '#1eb53a',
+    warning: '#ffc107',
+    danger:  '#e31e25',
+    grid:    'rgba(99,110,114,0.18)',
+    text:    '#2d3436',
+    muted:   '#636e72'
+};
+
+Chart.defaults.font.family = 'Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+Chart.defaults.color = theme.muted;
+
+// Tasks Doughnut Chart
 const tasksCtx = document.getElementById('tasksChart');
 new Chart(tasksCtx, {
     type: 'doughnut',
@@ -239,27 +256,29 @@ new Chart(tasksCtx, {
                 {{ stats.pending_tasks }},
                 {{ stats.overdue_tasks }}
             ],
-            backgroundColor: [
-                '#1eb53a',
-                '#ffc107',
-                '#0084d4',
-                '#e31e25'
-            ],
-            borderWidth: 0
+            backgroundColor: [theme.success, theme.warning, theme.primary, theme.danger],
+            borderWidth: 0,
+            hoverOffset: 6
         }]
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
         plugins: {
             legend: {
                 position: 'bottom',
                 labels: {
-                    padding: 20,
-                    font: {
-                        size: 12,
-                        family: 'Inter'
-                    }
+                    padding: 16,
+                    boxWidth: 10,
+                    boxHeight: 10,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: (ctx) => ` ${ctx.label}: ${ctx.parsed}`
                 }
             }
         }
@@ -271,38 +290,68 @@ fetch('/api/dashboard/chart-data')
     .then(response => response.json())
     .then(data => {
         const monthlyCtx = document.getElementById('monthlyChart');
+        const labels = (data.monthly_tasks || []).map(item => {
+            const m = item.month; // "YYYY-MM"
+            const d = new Date(`${m}-01T00:00:00`);
+            return isNaN(d.getTime())
+                ? m
+                : d.toLocaleDateString('uz-UZ', { year: '2-digit', month: 'short' });
+        });
+
+        const values = (data.monthly_tasks || []).map(item => item.count);
+
+        // Gradient fill
+        const gradient = monthlyCtx.getContext('2d').createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, 'rgba(0, 132, 212, 0.22)');
+        gradient.addColorStop(1, 'rgba(0, 132, 212, 0.02)');
+
         new Chart(monthlyCtx, {
             type: 'line',
             data: {
-                labels: data.monthly_tasks.map(item => item.month),
+                labels,
                 datasets: [{
                     label: 'Topshiriqlar',
-                    data: data.monthly_tasks.map(item => item.count),
-                    borderColor: '#0084d4',
-                    backgroundColor: 'rgba(0, 132, 212, 0.1)',
+                    data: values,
+                    borderColor: theme.primary,
+                    backgroundColor: gradient,
                     tension: 0.4,
                     fill: true,
-                    borderWidth: 3
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: theme.muted }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: { color: theme.grid },
                         ticks: {
-                            stepSize: 1
+                            stepSize: 1,
+                            precision: 0
                         }
                     }
                 }
             }
         });
+    })
+    .catch(() => {
+        // fail silently
     });
 </script>
 {% endif %}

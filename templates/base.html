@@ -391,6 +391,13 @@
                 opacity: 1;
             }
         }
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
         
         .alert-success {
             background: #d4edda;
@@ -588,7 +595,7 @@
             <div class="top-bar-right">
                 <button class="notification-btn">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
+                    <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
                 </button>
                 
                 <div class="user-profile">
@@ -621,13 +628,27 @@
                 setTimeout(() => alert.remove(), 300);
             });
         }, 5000);
-        
-        @keyframes slideOut {
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
+
+        // Notifications count (real)
+        document.addEventListener('DOMContentLoaded', () => {
+            const badge = document.getElementById('notificationBadge');
+            if (!badge) return;
+
+            fetch('/api/notifications', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (!data || typeof data.count !== 'number') return;
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(() => {
+                    // fail silently
+                });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}
