@@ -65,6 +65,32 @@ for folder in UPLOAD_FOLDERS:
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+@app.context_processor
+def inject_unread_notifications():
+    """Make unread notifications available in all templates."""
+    try:
+        if current_user.is_authenticated:
+            unread_notifications = Notification.query.filter_by(
+                user_id=current_user.id,
+                is_read=False
+            ).order_by(Notification.created_at.desc()).limit(5).all()
+            unread_notifications_count = Notification.query.filter_by(
+                user_id=current_user.id,
+                is_read=False
+            ).count()
+        else:
+            unread_notifications = []
+            unread_notifications_count = 0
+    except Exception:
+        # Avoid breaking templates if DB isn't ready yet
+        unread_notifications = []
+        unread_notifications_count = 0
+
+    return {
+        'unread_notifications': unread_notifications,
+        'unread_notifications_count': unread_notifications_count,
+    }
+
 
 # Custom decorators
 def admin_required(f):

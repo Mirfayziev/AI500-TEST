@@ -196,6 +196,31 @@
             align-items: center;
             gap: 1.5rem;
         }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--bg);
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
         
         .notification-btn {
             position: relative;
@@ -231,6 +256,108 @@
             justify-content: center;
             font-weight: 700;
             border: 2px solid white;
+        }
+
+        .notification-badge.hidden {
+            display: none;
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            width: 360px;
+            max-width: calc(100vw - 2rem);
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: none;
+            z-index: 2000;
+        }
+
+        .notifications-dropdown.active {
+            display: block;
+            animation: dropdownIn 0.15s ease;
+        }
+
+        @keyframes dropdownIn {
+            from { transform: translateY(-6px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .notifications-header {
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notifications-header h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .notifications-list {
+            max-height: 360px;
+            overflow: auto;
+        }
+
+        .notification-item {
+            padding: 0.9rem 1rem;
+            display: flex;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: var(--bg);
+        }
+
+        .notification-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            margin-top: 0.35rem;
+            flex: 0 0 auto;
+        }
+
+        .notification-text h5 {
+            font-size: 0.9rem;
+            margin: 0 0 0.15rem 0;
+            font-weight: 700;
+        }
+
+        .notification-text p {
+            font-size: 0.82rem;
+            margin: 0;
+            color: var(--text-light);
+        }
+
+        .notifications-empty {
+            padding: 1.2rem 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 998;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
         }
         
         .user-profile {
@@ -419,9 +546,9 @@
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 0;
-                transform: translateX(-280px);
-                transition: transform 0.3s;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
             }
             
             .sidebar.active {
@@ -435,10 +562,21 @@
             .search-bar {
                 display: none;
             }
+
+            .mobile-menu-btn {
+                display: inline-flex;
+            }
         }
-        
-        {% block extra_css %}{% endblock %}
+
+        @keyframes slideOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
     </style>
+
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Flash Messages -->
@@ -456,6 +594,7 @@
     {% endwith %}
     
     {% if current_user.is_authenticated %}
+    <div class="overlay" id="overlay"></div>
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
@@ -470,11 +609,11 @@
                     <i class="fas fa-home"></i>
                     Bosh sahifa
                 </a>
-            </div>
                 <a href="{{ url_for('demo') }}" class="nav-link {% if request.endpoint == 'demo' %}active{% endif %}">
                     <i class="fas fa-robot"></i>
                     AI Demo
                 </a>
+            </div>
             
             <div class="nav-section">
                 <div class="nav-section-title">Modullar</div>
@@ -580,16 +719,47 @@
     <main class="main-content">
         <!-- Top Bar -->
         <div class="top-bar">
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Qidirish...">
+            <div class="top-bar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Qidirish...">
+                </div>
             </div>
             
             <div class="top-bar-right">
-                <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
+                <div style="position: relative;">
+                    <button class="notification-btn" id="notificationBtn" aria-label="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge {% if unread_notifications_count == 0 %}hidden{% endif %}" id="notificationBadge">
+                            {{ unread_notifications_count }}
+                        </span>
+                    </button>
+
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h4>Bildirishnomalar</h4>
+                            <span style="color: var(--text-light); font-size: 0.85rem;">{{ unread_notifications_count }}</span>
+                        </div>
+                        <div class="notifications-list" id="notificationsList">
+                            {% if unread_notifications and unread_notifications|length > 0 %}
+                                {% for n in unread_notifications %}
+                                <a class="notification-item" href="{{ n.link or '#' }}" data-notification-id="{{ n.id }}">
+                                    <span class="notification-dot"></span>
+                                    <div class="notification-text">
+                                        <h5>{{ n.title }}</h5>
+                                        <p>{{ n.message }}</p>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="notifications-empty">Yangi bildirishnoma yo‘q.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="user-profile">
                     <div class="user-avatar">
@@ -621,13 +791,57 @@
                 setTimeout(() => alert.remove(), 300);
             });
         }, 5000);
-        
-        @keyframes slideOut {
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
+
+        // Mobile sidebar toggle
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('overlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+        function openSidebar() {
+            sidebar?.classList.add('active');
+            overlay?.classList.add('active');
         }
+
+        function closeSidebar() {
+            sidebar?.classList.remove('active');
+            overlay?.classList.remove('active');
+        }
+
+        mobileMenuBtn?.addEventListener('click', () => {
+            if (sidebar?.classList.contains('active')) closeSidebar();
+            else openSidebar();
+        });
+
+        overlay?.addEventListener('click', closeSidebar);
+
+        // Notifications dropdown
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationsDropdown = document.getElementById('notificationsDropdown');
+
+        function closeNotifications() {
+            notificationsDropdown?.classList.remove('active');
+        }
+
+        notificationBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationsDropdown?.classList.toggle('active');
+        });
+
+        document.addEventListener('click', closeNotifications);
+        notificationsDropdown?.addEventListener('click', (e) => e.stopPropagation());
+
+        // Mark notification read when clicked
+        document.querySelectorAll('[data-notification-id]').forEach((el) => {
+            el.addEventListener('click', async () => {
+                const id = el.getAttribute('data-notification-id');
+                if (!id) return;
+                try {
+                    await fetch(`/api/notifications/${id}/mark-read`, { method: 'POST' });
+                } catch (_) {
+                    // ignore
+                }
+            });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}
