@@ -475,6 +475,10 @@
                     <i class="fas fa-robot"></i>
                     AI Demo
                 </a>
+                <a href="{{ url_for('ai_chat') }}" class="nav-link {% if request.endpoint == 'ai_chat' %}active{% endif %}">
+                    <i class="fas fa-comments"></i>
+                    AI Chat
+                </a>
             
             <div class="nav-section">
                 <div class="nav-section-title">Modullar</div>

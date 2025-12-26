@@ -143,6 +143,126 @@ def send_telegram_notification(user_id, message):
     except Exception as e:
         print(f"Telegram notification error: {e}")
 
+
+# ==================== AI (ChatGPT-like) HELPERS ====================
+def _ai_demo_reply(user_text: str) -> str:
+    user_text = (user_text or "").strip()
+    if not user_text:
+        return "Savol matni bo‘sh. Iltimos, savolingizni yozing."
+    return (
+        "Demo rejim: serverda AI_API_KEY sozlanmagan.\n\n"
+        f"Siz yozdingiz: {user_text}\n\n"
+        "Live rejim uchun Render/Server environment variables:\n"
+        "- AI_API_KEY\n"
+        "- AI_API_BASE (ixtiyoriy, default: https://api.openai.com/v1)\n"
+        "- AI_MODEL (ixtiyoriy, default: gpt-4o-mini)\n"
+    )
+
+
+def _normalize_chat_messages(raw_messages):
+    """Return OpenAI-compatible messages list (role/content)."""
+    if not isinstance(raw_messages, list):
+        return []
+
+    cleaned = []
+    for m in raw_messages:
+        if not isinstance(m, dict):
+            continue
+        role = m.get("role")
+        content = m.get("content")
+        if role not in ("system", "user", "assistant"):
+            continue
+        if not isinstance(content, str):
+            continue
+        content = content.strip()
+        if not content:
+            continue
+        cleaned.append({"role": role, "content": content})
+
+    # limit: last 20 messages, keep at least 1 user message if present
+    return cleaned[-20:]
+
+
+def generate_ai_response(messages, user=None):
+    """
+    Generate assistant reply.
+    - Live mode if AI_API_KEY is set (OpenAI-compatible /v1/chat/completions)
+    - Demo mode otherwise
+    """
+    api_key = app.config.get("AI_API_KEY") or ""
+    api_base = (app.config.get("AI_API_BASE") or "https://api.openai.com/v1").rstrip("/")
+    model = app.config.get("AI_MODEL") or "gpt-4o-mini"
+    timeout = int(app.config.get("AI_TIMEOUT_SECONDS") or 60)
+    max_tokens = int(app.config.get("AI_MAX_TOKENS") or 600)
+    temperature = float(app.config.get("AI_TEMPERATURE") or 0.4)
+
+    safe_messages = _normalize_chat_messages(messages)
+
+    # Ensure system prompt exists
+    system_prompt = (
+        "Siz foydalanuvchiga yordam beradigan AI assistantsiz. "
+        "Javoblarni asosan o‘zbek tilida yozing (foydalanuvchi boshqa til so‘ramasa). "
+        "Javobni aniq, amaliy va qisqa qiling."
+    )
+    if user and getattr(user, "full_name", None):
+        system_prompt += f" Foydalanuvchi ismi: {user.full_name}."
+
+    if not safe_messages or safe_messages[0].get("role") != "system":
+        safe_messages = [{"role": "system", "content": system_prompt}] + safe_messages
+
+    # Demo mode
+    if not api_key:
+        last_user = ""
+        for m in reversed(safe_messages):
+            if m["role"] == "user":
+                last_user = m["content"]
+                break
+        return {"mode": "demo", "model": None, "message": _ai_demo_reply(last_user)}
+
+    # Live mode
+    url = f"{api_base}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "messages": safe_messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+
+    try:
+        resp = requests.post(url, headers=headers, json=payload, timeout=timeout)
+        if resp.status_code >= 400:
+            details = resp.text
+            if isinstance(details, str) and len(details) > 500:
+                details = details[:500] + "..."
+            return {
+                "mode": "demo",
+                "model": None,
+                "message": (
+                    "AI server xatosi. Demo rejimga o‘tildi.\n\n"
+                    f"Status: {resp.status_code}\n"
+                    f"Details: {details}"
+                ),
+            }
+
+        data = resp.json()
+        content = (
+            data.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "")
+        )
+        content = (content or "").strip()
+        return {"mode": "live", "model": model, "message": content or "(bo‘sh javob)"}
+    except Exception as e:
+        return {
+            "mode": "demo",
+            "model": None,
+            "message": f"AI ulanish xatosi. Demo rejim.\n\nXato: {e}",
+        }
+
 # ==================== AUTHENTICATION ROUTES ====================
 
 @app.route('/')
@@ -157,6 +277,13 @@ def index():
 def demo():
     """Public AI500 competition demo landing page"""
     return render_template('demo.html')
+
+
+@app.route('/ai-chat')
+@login_required
+def ai_chat():
+    """ChatGPT-like web chat UI (requires login)."""
+    return render_template('ai_chat.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1535,6 +1662,31 @@ def save_chat_id():
 
     return {"success": True}, 200
 
+
+
+# ==================== AI CHAT API ====================
+@app.route('/api/ai/chat', methods=['POST'])
+@login_required
+def api_ai_chat():
+    """
+    Body:
+      - { "messages": [{role, content}, ...] }   (recommended)
+      - or { "prompt": "..." }
+    Response:
+      - { mode: "live"|"demo", model, message }
+    """
+    data = request.get_json(silent=True) or {}
+    raw_messages = data.get("messages")
+    prompt = data.get("prompt")
+
+    if raw_messages is None:
+        if isinstance(prompt, str) and prompt.strip():
+            raw_messages = [{"role": "user", "content": prompt.strip()}]
+        else:
+            return jsonify({"error": "messages yoki prompt kerak"}), 400
+
+    result = generate_ai_response(raw_messages, user=current_user)
+    return jsonify(result)
 
 
 # ==================== ERROR HANDLERS ====================
