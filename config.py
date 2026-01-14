@@ -22,3 +22,10 @@ class Config:
 # Backwards-compatibility for direct imports
 TELEGRAM_BOT_TOKEN = Config.TELEGRAM_BOT_TOKEN
 SERVER_URL = Config.SERVER_URL
+
+class Config:
+    # ... oldingi sozlamalar
+
+    TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    SERVER_URL = os.environ.get("SERVER_URL", "")  # https://web-production-aa3b.up.railway.app
+    ENABLE_WEBHOOK = os.environ.get("ENABLE_WEBHOOK", "false").lower() == "true"
