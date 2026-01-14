@@ -37,6 +37,30 @@ if os.getenv("INIT_DB", "false").lower() == "true":
         db.create_all()
         print("✅ DB initialized (INIT_DB=true)")
 # ==============================
+# ONE-TIME DB INIT (Railway-safe)
+# ==============================
+if os.getenv("INIT_DB", "false").lower() == "true":
+    with app.app_context():
+        db.create_all()
+
+        # ===== CREATE ADMIN (ONE TIME) =====
+        admin = User.query.filter_by(email='admin@afimperiya.uz').first()
+        if not admin:
+            admin = User(
+                full_name='Administrator',
+                email='admin@afimperiya.uz',
+                role='admin',
+                is_active=True
+            )
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Admin created: admin@afimperiya.uz / admin123")
+        else:
+            print("ℹ️ Admin already exists")
+
+        print("✅ DB initialized (INIT_DB=true)")
+        
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
