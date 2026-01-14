@@ -2,30 +2,44 @@ import os
 
 
 class Config:
-    """Base configuration for AF Imperiya app."""
-    # Flask
-    SECRET_KEY = os.environ.get("SECRET_KEY", "super-secret-key")
+    """Railway-ready configuration for AF Imperiya app."""
 
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
-        "sqlite:///instance/af_imperiya.db"
-    )
+    # =========================
+    # Flask
+    # =========================
+    SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key")
+
+    # =========================
+    # Database (Railway-safe)
+    # =========================
+    _raw_db_url = os.getenv("DATABASE_URL", "").strip()
+
+    if _raw_db_url:
+        # Railway Postgres ba’zan postgres:// beradi
+        SQLALCHEMY_DATABASE_URI = _raw_db_url.replace(
+            "postgres://", "postgresql://", 1
+        )
+    else:
+        # Lokal yoki fallback
+        SQLALCHEMY_DATABASE_URI = "sqlite:///instance/af_imperiya.db"
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # =========================
     # Telegram
-    TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    # e.g. https://ai500-test.onrender.com  (no slash at the end)
-    SERVER_URL = os.environ.get("SERVER_URL", "")
+    # =========================
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+
+    # Masalan: https://web-production-aa3b.up.railway.app
+    SERVER_URL = os.getenv("SERVER_URL", "").rstrip("/")
+
+    # Webhook faqat flag true bo‘lsa ishlaydi
+    ENABLE_WEBHOOK = os.getenv("ENABLE_WEBHOOK", "false").lower() == "true"
 
 
-# Backwards-compatibility for direct imports
+# ======================================
+# Backwards compatibility (agar eski importlar bo‘lsa)
+# ======================================
 TELEGRAM_BOT_TOKEN = Config.TELEGRAM_BOT_TOKEN
 SERVER_URL = Config.SERVER_URL
-
-class Config:
-    # ... oldingi sozlamalar
-
-    TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    SERVER_URL = os.environ.get("SERVER_URL", "")  # https://web-production-aa3b.up.railway.app
-    ENABLE_WEBHOOK = os.environ.get("ENABLE_WEBHOOK", "false").lower() == "true"
+ENABLE_WEBHOOK = Config.ENABLE_WEBHOOK
