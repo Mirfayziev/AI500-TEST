@@ -34,23 +34,44 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Iltimos, tizimga kiring'
 
-# ===== TELEGRAM WEBHOOKNI AVTOMATIK O'RNATISH =====
+# ===== TELEGRAM WEBHOOK (RAILWAY-SAFE) =====
 import requests
 
 def set_webhook():
-    webhook_url = Config.SERVER_URL.rstrip("/") + "/telegram-webhook"
+    """
+    Telegram webhookni faqat to‘g‘ri sharoitda o‘rnatadi:
+    - ENABLE_WEBHOOK=true
+    - SERVER_URL mavjud va https bilan boshlanadi
+    """
     bot_token = Config.TELEGRAM_BOT_TOKEN
+    base_url = Config.SERVER_URL.rstrip("/")
 
-    if bot_token and webhook_url:
-        url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
-        resp = requests.post(url, json={"url": webhook_url})
-        print("Webhook response:", resp.text)
+    if not Config.ENABLE_WEBHOOK:
+        print("Webhook disabled (ENABLE_WEBHOOK=false)")
+        return
 
+    if not bot_token:
+        print("Webhook skipped: TELEGRAM_BOT_TOKEN yo‘q")
+        return
+
+    if not base_url.startswith("https://"):
+        print("Webhook skipped: SERVER_URL noto‘g‘ri yoki yo‘q")
+        return
+
+    webhook_url = f"{base_url}/telegram-webhook"
+
+    url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+    resp = requests.post(url, json={"url": webhook_url}, timeout=10)
+    print("Webhook response:", resp.text)
+
+
+# ⚠️ Faqat flag yoqilgan bo‘lsa ishga tushadi
 with app.app_context():
     try:
         set_webhook()
     except Exception as e:
         print("Webhook set error:", e)
+
 # ===============================================
 
 # Create upload folders
