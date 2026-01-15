@@ -381,71 +381,127 @@ def dashboard():
 
 # ==================== TASKS MODULE ====================
 
-@app.route('/tasks')
-@login_required
-@module_access_required('tasks')
-def tasks():
-    if current_user.role in ['admin', 'rahbar']:
-        tasks = Task.query.order_by(Task.created_at.desc()).all()
-    else:
-        user_task_ids = [ta.task_id for ta in current_user.tasks_assigned]
-        tasks = Task.query.filter(Task.id.in_(user_task_ids)).order_by(Task.created_at.desc()).all()
-    
-    return render_template('tasks/index.html', tasks=tasks, get_task_status_color=get_task_status_color)
+from datetime import datetime
+import os
+import uuid
+from werkzeug.utils import secure_filename
+from flask import current_app, flash, redirect, render_template, request, url_for
+
+# Fayl turlari (xohlasangiz kengaytiramiz)
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "pdf", "docx", "xlsx", "zip"}
+
+def _allowed_file(filename: str) -> bool:
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def _parse_dt(value: str):
+    """
+    datetime-local: 2026-01-15T14:30
+    date:          2026-01-15
+    """
+    if not value:
+        return None
+    value = value.strip()
+    for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            continue
+    return None
+
 
 @app.route('/tasks/create', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def tasks_create():
+    # Xodimlar ro'yxati (multi-assign uchun)
+    users = User.query.filter(User.is_active == True).order_by(User.full_name.asc()).all()
+
     if request.method == 'POST':
+        # 1) Sana/vaqtlarni parse qilish (date ham, datetime-local ham ishlaydi)
+        start_dt = _parse_dt(request.form.get('start_date') or request.form.get('start_at'))
+        due_dt   = _parse_dt(request.form.get('due_date') or request.form.get('due_at'))
+
+        if start_dt and due_dt and due_dt < start_dt:
+            flash("Tugash vaqti boshlanish vaqtidan oldin bo‘lishi mumkin emas.", "danger")
+            return render_template('tasks/create.html', users=users)
+
+        # 2) Task yaratish
         task = Task(
-            title=request.form.get('title'),
-            description=request.form.get('description'),
+            title=request.form.get('title', '').strip(),
+            description=(request.form.get('description') or '').strip(),
             priority=request.form.get('priority', 'medium'),
-            status='pending',
-            start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d') if request.form.get('start_date') else None,
-            due_date=datetime.strptime(request.form.get('due_date'), '%Y-%m-%d') if request.form.get('due_date') else None,
+            status='pending',  # sizda default pending bor :contentReference[oaicite:2]{index=2}
+            start_date=start_dt,
+            due_date=due_dt,
             created_by=current_user.id
         )
+
+        if not task.title:
+            flash("Topshiriq nomi majburiy.", "danger")
+            return render_template('tasks/create.html', users=users)
+
         db.session.add(task)
-        db.session.commit()
-        
-        # Assign users
-        assigned_user_ids = request.form.getlist('assigned_users')
-        for user_id in assigned_user_ids:
-            assignment = TaskAssignment(
+        db.session.commit()  # task.id kerak bo‘ladi
+
+        # 3) Multi-assign (B-variant)
+        # Template'da name="assigned_users" :contentReference[oaicite:3]{index=3}
+        assigned_ids = request.form.getlist('assigned_users')
+        # Kelajak uchun fallback:
+        if not assigned_ids:
+            assigned_ids = request.form.getlist('assignees')
+
+        # dublikatlarni tozalash + intga aylantirish
+        clean_ids = []
+        for x in assigned_ids:
+            try:
+                clean_ids.append(int(x))
+            except ValueError:
+                pass
+        clean_ids = sorted(set(clean_ids))
+
+        for uid in clean_ids:
+            db.session.add(TaskAssignment(
                 task_id=task.id,
-                user_id=int(user_id),
+                user_id=uid,
                 assigned_by=current_user.id
-            )
-            db.session.add(assignment)
-            
-            # Send notification
-            notification = Notification(
-                user_id=int(user_id),
-                title='Yangi topshiriq',
-                message=f'Sizga yangi topshiriq biriktirildi: {task.title}',
-                type='task',
-                link=url_for('tasks_view', id=task.id)
-            )
-            db.session.add(notification)
-            
-            # Send Telegram notification
-            send_telegram_notification(
-                int(user_id),
-                f"📋 <b>Yangi topshiriq</b>\n\n"
-                f"<b>Nomi:</b> {task.title}\n"
-                f"<b>Muhimlik:</b> {task.priority}\n"
-                f"<b>Muddat:</b> {task.due_date.strftime('%d.%m.%Y') if task.due_date else 'Belgilanmagan'}"
-            )
-        
+            ))
+
+        # 4) Attachments (rasm/fayl)
+        # create.html’da name="attachments" multiple bo‘ladi (quyida beraman)
+        files = request.files.getlist('attachments')
+        if files:
+            upload_dir = os.path.join(current_app.root_path, "static", "uploads", "tasks")
+            os.makedirs(upload_dir, exist_ok=True)
+
+            for f in files:
+                if not f or not f.filename:
+                    continue
+
+                filename = secure_filename(f.filename)
+                if not filename or not _allowed_file(filename):
+                    continue
+
+                # collision bo‘lmasin
+                ext = filename.rsplit(".", 1)[1].lower()
+                stored_name = f"{uuid.uuid4().hex}.{ext}"
+                rel_path = f"uploads/tasks/{stored_name}"
+                abs_path = os.path.join(current_app.root_path, "static", rel_path)
+
+                f.save(abs_path)
+
+                db.session.add(TaskAttachment(
+                    task_id=task.id,
+                    filename=filename,
+                    filepath=f"/static/{rel_path}",
+                    uploaded_by=current_user.id
+                ))
+
         db.session.commit()
-        
-        flash('Topshiriq muvaffaqiyatli yaratildi', 'success')
+
+        flash("Topshiriq muvaffaqiyatli yaratildi.", "success")
         return redirect(url_for('tasks'))
-    
-    users = User.query.filter_by(role='xodim', is_active=True).all()
     return render_template('tasks/create.html', users=users)
+
 
 @app.route('/tasks/<int:id>')
 @login_required
