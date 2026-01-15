@@ -386,7 +386,7 @@ def tasks_create():
             flash("Topshiriqni kamida bitta xodimga biriktiring", "warning")
             db.session.rollback()
             return redirect(url_for('tasks_create'))
-for user_id in assigned_user_ids:
+        for user_id in assigned_user_ids:
             assignment = TaskAssignment(
                 task_id=task.id,
                 user_id=int(user_id),
