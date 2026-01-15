@@ -456,9 +456,8 @@
     {% endwith %}
     
     {% if current_user.is_authenticated %}
-    
-    {% set ep = request.endpoint or '' %}
-<!-- Sidebar -->
+{% set ep = request.endpoint or '' %}
+    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
             <h1>AF IMPERIYA</h1>
@@ -468,12 +467,12 @@
         <nav>
             <div class="nav-section">
                 <div class="nav-section-title">Asosiy</div>
-                <a href="{{ url_for('dashboard') }}" class="nav-link {% if ep == 'dashboard' %}active{% endif %}">
+                <a href="{{ safe_url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-home"></i>
                     Bosh sahifa
                 </a>
             </div>
-                <a href="{{ url_for('demo') }}" class="nav-link {% if ep == 'demo' %}active{% endif %}">
+                <a href="{{ safe_url_for('demo') }}" class="nav-link {% if request.endpoint == 'demo' %}active{% endif %}">
                     <i class="fas fa-robot"></i>
                     AI Demo
                 </a>
@@ -482,78 +481,77 @@
                 <div class="nav-section-title">Modullar</div>
                 
                 {% if current_user.has_module_access('tasks') %}
-               <a href="{{ url_for('tasks_view') }}"
-   class="nav-link {% if request.endpoint == 'tasks_view' %}active{% endif %}">
+                <a href="{{ safe_url_for('tasks') }}" class="nav-link {% if request.endpoint and 'tasks' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-tasks"></i>
                     Topshriqlar
                 </a>
                 {% endif %}
                 
-               {% if current_user.has_module_access('vehicles') %}
-               <a href="{{ url_for('vehicles') }}" class="nav-link {% if 'vehicles' in ep %}active{% endif %}">
-                   <i class="fas fa-car"></i>
-                   Avto transport
-               </a>
-               {% endif %}
+                {% if current_user.has_module_access('vehicles') %}
+                <a href="{{ safe_url_for('tasks') }}" class="nav-link {% if request.endpoint and 'tasks' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-car"></i>
+                    Avto transport
+                </a>
+                {% endif %}
                 
                 {% if current_user.has_module_access('buildings') %}
-                <a href="{{ url_for('buildings') }}" class="nav-link {% if 'buildings' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('buildings') }}" class="nav-link {% if request.endpoint and 'buildings' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-building"></i>
                     Binolar
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('greenspaces') %}
-                <a href="{{ url_for('greenspaces') }}" class="nav-link {% if 'greenspaces' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('greenspaces') }}" class="nav-link {% if 'greenspaces' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-leaf"></i>
                     Yashil makonlar
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('solarpanels') %}
-                <a href="{{ url_for('solarpanels') }}" class="nav-link {% if 'solarpanels' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('solarpanels') }}" class="nav-link {% if 'solarpanels' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-solar-panel"></i>
                     Quyosh panellari
                 </a>
                 {% endif %}
                 
                 {% if current_user.role in ['admin', 'rahbar'] %}
-                <a href="{{ url_for('employees') }}" class="nav-link {% if 'employees' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('employees') }}" class="nav-link {% if 'employees' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-users"></i>
                     Xodimlar
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('outsourcing') %}
-                <a href="{{ url_for('outsourcing') }}" class="nav-link {% if 'outsourcing' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('outsourcing') }}" class="nav-link {% if 'outsourcing' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-handshake"></i>
                     Outsorsing
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('organizations') %}
-                <a href="{{ url_for('organizations') }}" class="nav-link {% if 'organizations' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('organizations') }}" class="nav-link {% if 'organizations' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-sitemap"></i>
                     Tashkilotlar
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('guests') %}
-                <a href="{{ url_for('guests') }}" class="nav-link {% if 'guests' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('guests') }}" class="nav-link {% if 'guests' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-user-friends"></i>
                     Mehmonlar
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('celebrations') %}
-                <a href="{{ url_for('celebrations') }}" class="nav-link {% if 'celebrations' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('celebrations') }}" class="nav-link {% if 'celebrations' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-gift"></i>
                     Tabriknomalar
                 </a>
                 {% endif %}
                 
                 {% if current_user.has_module_access('contracts') %}
-                <a href="{{ url_for('contracts') }}" class="nav-link {% if 'contracts' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('contracts') }}" class="nav-link {% if 'contracts' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-file-contract"></i>
                     Shartnomalar
                 </a>
@@ -563,7 +561,7 @@
             {% if current_user.role == 'admin' %}
             <div class="nav-section">
                 <div class="nav-section-title">Boshqaruv</div>
-                <a href="{{ url_for('admin_panel') }}" class="nav-link {% if 'admin' in ep %}active{% endif %}">
+                <a href="{{ safe_url_for('admin_panel') }}" class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-cog"></i>
                     Admin panel
                 </a>
@@ -571,7 +569,7 @@
             {% endif %}
             
             <div class="nav-section">
-                <a href="{{ url_for('logout') }}" class="nav-link">
+                <a href="{{ safe_url_for('logout') }}" class="nav-link">
                     <i class="fas fa-sign-out-alt"></i>
                     Chiqish
                 </a>
