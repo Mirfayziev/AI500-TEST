@@ -11,262 +11,314 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <style>
-    :root {
-      --primary: #0084d4;
-      --primary-dark: #006bb3;
-      --secondary: #1eb53a;
-      --danger: #e31e25;
-      --dark: #1a1a2e;
-      --dark-light: #16213e;
-      --text: #2d3436;
-      --text-light: #636e72;
-      --bg: #f8f9fa;
-      --white: #ffffff;
-      --border: #e1e8ed;
-      --shadow: 0 2px 8px rgba(0,0,0,0.08);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    <style>
+    :root{
+      --bg-0:#070B16;
+      --bg-1:#0B1020;
+      --panel:rgba(16,23,42,.72);
+      --panel-2:rgba(16,23,42,.92);
+      --border:rgba(255,255,255,.10);
+      --border-2:rgba(255,255,255,.16);
+      --text:#EAF2FF;
+      --muted:rgba(234,242,255,.72);
+      --muted-2:rgba(234,242,255,.52);
+      --primary:#22d3ee;
+      --primary-2:#a78bfa;
+      --success:#34d399;
+      --warning:#fbbf24;
+      --danger:#fb7185;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --shadow-sm: 0 6px 18px rgba(0,0,0,.22);
+      --radius:18px;
+      --radius-sm:14px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(34,211,238,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(700px 500px at 55% 85%, rgba(52,211,153,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1));
+      min-height:100vh;
     }
+
+    a{color:inherit}
+    .muted{color:var(--muted)}
+    .muted-2{color:var(--muted-2)}
 
     /* Sidebar */
-    .sidebar {
-      position: fixed;
-      left: 0; top: 0;
-      width: 280px;
-      height: 100vh;
-      background: linear-gradient(180deg, var(--dark) 0%, var(--dark-light) 100%);
-      padding: 2rem 0;
-      overflow-y: auto;
-      z-index: 1000;
-      box-shadow: var(--shadow-lg);
+    .sidebar{
+      position:fixed;left:0;top:0;
+      width:288px;height:100vh;
+      padding:22px 0;
+      background:linear-gradient(180deg, rgba(6,10,25,.92) 0%, rgba(10,16,35,.92) 100%);
+      border-right:1px solid var(--border);
+      box-shadow:var(--shadow);
+      overflow-y:auto;
+      z-index:1000;
+      backdrop-filter: blur(14px);
+    }
+    .sidebar::-webkit-scrollbar{width:6px}
+    .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
+
+    .logo{
+      padding:0 22px 18px;
+      margin-bottom:12px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+    }
+    .logo h1{
+      font-family:'Poppins',sans-serif;
+      font-size:1.65rem;
+      font-weight:800;
+      letter-spacing:-.5px;
+      background: linear-gradient(135deg, #fff 0%, var(--primary) 35%, var(--primary-2) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .logo p{
+      margin-top:6px;
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.55);
     }
 
-    .sidebar::-webkit-scrollbar { width: 6px; }
-    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
-
-    .logo {
-      text-align: center;
-      padding: 0 1.5rem 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 1.5rem;
+    .nav-section{margin:18px 0}
+    .nav-section-title{
+      padding:0 22px;
+      margin-bottom:10px;
+      color:rgba(255,255,255,.52);
+      font-size:.72rem;
+      font-weight:800;
+      letter-spacing:1px;
+      text-transform:uppercase;
     }
 
-    .logo h1 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff 0%, #0084d4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.3rem;
-      letter-spacing: -0.5px;
+    .nav-link{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 22px;
+      text-decoration:none;
+      color:rgba(255,255,255,.72);
+      border-left:3px solid transparent;
+      transition:all .22s ease;
+    }
+    .nav-link i{width:22px;font-size:1.05rem;opacity:.9}
+    .nav-link:hover{
+      background:rgba(255,255,255,.05);
+      color:#fff;
+      border-left-color:rgba(34,211,238,.45);
+    }
+    .nav-link.active{
+      background: linear-gradient(90deg, rgba(34,211,238,.18), rgba(167,139,250,.10));
+      color:#fff;
+      border-left-color:var(--primary);
+      font-weight:700;
     }
 
-    .logo p {
-      color: rgba(255,255,255,0.6);
-      font-size: 0.75rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    /* Main */
+    .main-content{margin-left:288px;min-height:100vh}
+    .top-bar{
+      position:sticky;top:0;z-index:900;
+      padding:14px 24px;
+      background: rgba(10,14,30,.68);
+      border-bottom:1px solid var(--border);
+      backdrop-filter: blur(16px);
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
     }
 
-    .nav-section { margin-bottom: 2rem; }
-
-    .nav-section-title {
-      padding: 0 1.5rem;
-      color: rgba(255,255,255,0.5);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.75rem;
+    .search-bar{flex:1;max-width:560px;position:relative}
+    .search-bar i{
+      position:absolute;left:14px;top:50%;
+      transform:translateY(-50%);
+      color:rgba(255,255,255,.55);
+      font-size:.95rem;
+    }
+    .search-bar input{
+      width:100%;
+      padding:12px 14px 12px 40px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(16,23,42,.55);
+      color:var(--text);
+      outline:none;
+      transition:all .2s ease;
+    }
+    .search-bar input::placeholder{color:rgba(234,242,255,.45)}
+    .search-bar input:focus{
+      border-color: rgba(34,211,238,.55);
+      box-shadow: 0 0 0 4px rgba(34,211,238,.12);
+      background: rgba(16,23,42,.70);
     }
 
-    .nav-link {
-      display: flex;
-      align-items: center;
-      padding: 0.9rem 1.5rem;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      border-left: 3px solid transparent;
+    .top-bar-right{display:flex;align-items:center;gap:14px}
+    .notification-btn{
+      width:44px;height:44px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(16,23,42,.55);
+      color:rgba(255,255,255,.85);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:all .2s ease;
+      position:relative;
+    }
+    .notification-btn:hover{
+      border-color:rgba(34,211,238,.55);
+      box-shadow:0 0 0 4px rgba(34,211,238,.10);
+      transform:translateY(-1px);
+    }
+    .notification-badge{
+      position:absolute;top:-6px;right:-6px;
+      width:20px;height:20px;border-radius:999px;
+      background: linear-gradient(135deg, var(--danger), #ef4444);
+      border:2px solid rgba(10,14,30,.8);
+      display:flex;align-items:center;justify-content:center;
+      font-size:.68rem;font-weight:800;color:#fff;
     }
 
-    .nav-link:hover {
-      background: rgba(255,255,255,0.05);
-      color: var(--white);
-      border-left-color: var(--primary);
+    .user-profile{
+      display:flex;align-items:center;gap:10px;
+      padding:8px 12px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background: rgba(16,23,42,.55);
+    }
+    .user-avatar{
+      width:40px;height:40px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(34,211,238,.95), rgba(167,139,250,.95));
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;color:#071018;
+    }
+    .user-info h4{font-size:.95rem;font-weight:800;line-height:1.1}
+    .user-info p{font-size:.78rem;color:rgba(234,242,255,.62)}
+
+    .content{padding:22px 24px 34px}
+
+    /* Cards / panels */
+    .card, .panel, .form-card{
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(14px);
+    }
+    .card{padding:18px}
+    .card-header{padding:18px 18px 0}
+    .card-body{padding:18px}
+    .card-footer{padding:0 18px 18px}
+
+    /* Page header helpers used in templates */
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+    .page-title{font-size:2.1rem;font-weight:900;letter-spacing:-.8px}
+    .page-subtitle{color:rgba(234,242,255,.70);margin-top:6px}
+
+    /* Buttons */
+    .btn, button, input[type="submit"]{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:11px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(16,23,42,.55);
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
+      transition:all .2s ease;
+      text-decoration:none;
+      user-select:none;
+    }
+    .btn:hover, button:hover, input[type="submit"]:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.18);
+      background: rgba(16,23,42,.70);
+    }
+    .btn-primary{
+      border-color: rgba(34,211,238,.55);
+      background: linear-gradient(135deg, rgba(34,211,238,.90), rgba(167,139,250,.78));
+      color:#06131a;
+      box-shadow: 0 10px 24px rgba(34,211,238,.16);
+    }
+    .btn-primary:hover{box-shadow: 0 14px 30px rgba(34,211,238,.22)}
+    .btn-outline{
+      background: transparent;
+      border-color: rgba(34,211,238,.45);
+      color: rgba(234,242,255,.92);
+    }
+    .btn-danger{
+      border-color: rgba(251,113,133,.55);
+      background: linear-gradient(135deg, rgba(251,113,133,.92), rgba(239,68,68,.85));
+      color:#19070a;
     }
 
-    .nav-link.active {
-      background: rgba(0,132,212,0.15);
-      color: var(--white);
-      border-left-color: var(--primary);
-      font-weight: 600;
+    /* Forms */
+    form{width:100%}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-weight:800;margin-bottom:8px;color:rgba(234,242,255,.86)}
+    .form-control, input[type="text"], input[type="email"], input[type="password"], input[type="number"],
+    input[type="date"], input[type="datetime-local"], input[type="file"], select, textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(16,23,42,.55);
+      color:var(--text);
+      outline:none;
+      transition:all .2s ease;
+    }
+    textarea{min-height:110px;resize:vertical}
+    select{appearance:none}
+    .form-control::placeholder{color:rgba(234,242,255,.42)}
+    .form-control:focus,
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(34,211,238,.60);
+      box-shadow: 0 0 0 4px rgba(34,211,238,.12);
+      background: rgba(16,23,42,.70);
+    }
+    .help-text, .form-text{color:rgba(234,242,255,.55);font-size:.85rem;margin-top:6px}
+
+    .form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    @media (max-width: 980px){
+      .form-row{grid-template-columns:1fr}
+      .main-content{margin-left:0}
+      .sidebar{transform:translateX(-288px);transition:transform .25s ease}
+      .sidebar.active{transform:translateX(0)}
     }
 
-    .nav-link i {
-      width: 24px;
-      margin-right: 0.75rem;
-      font-size: 1.1rem;
+    /* Tables (if any) */
+    table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    th{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(234,242,255,.55);text-align:left;padding:0 12px}
+    td{
+      background: rgba(16,23,42,.55);
+      border:1px solid var(--border);
+      padding:12px;
+      color:rgba(234,242,255,.88);
     }
+    tr td:first-child{border-top-left-radius:14px;border-bottom-left-radius:14px}
+    tr td:last-child{border-top-right-radius:14px;border-bottom-right-radius:14px}
 
-    /* Main Content */
-    .main-content { margin-left: 280px; min-height: 100vh; }
-
-    /* Top Bar */
-    .top-bar {
-      background: var(--white);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    /* Flash */
+    .flash-messages{position:fixed;top:14px;right:14px;z-index:9999;max-width:420px}
+    .alert{
+      display:flex;align-items:flex-start;gap:12px;
+      padding:12px 14px;border-radius:16px;
+      background: rgba(16,23,42,.82);
+      border:1px solid var(--border);
       box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 999;
+      animation:slideIn .28s ease;
     }
-
-    .search-bar { flex: 1; max-width: 500px; position: relative; }
-    .search-bar input {
-      width: 100%;
-      padding: 0.75rem 1rem 0.75rem 3rem;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-size: 0.95rem;
-      transition: all 0.3s;
-    }
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0,132,212,0.1);
-    }
-    .search-bar i {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-light);
-    }
-
-    .top-bar-right { display: flex; align-items: center; gap: 1.5rem; }
-
-    .notification-btn {
-      position: relative;
-      background: var(--bg);
-      border: none;
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .notification-btn:hover { background: var(--primary); color: white; }
-
-    .notification-badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--danger);
-      color: white;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      font-size: 0.7rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      border: 2px solid white;
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.5rem;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .user-profile:hover { background: var(--bg); }
-
-    .user-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .user-info h4 { font-size: 0.95rem; font-weight: 600; color: var(--text); }
-    .user-info p { font-size: 0.8rem; color: var(--text-light); }
-
-    /* Content Area */
-    .content { padding: 2rem; }
-
-    /* Flash Messages */
-    .flash-messages {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 9999;
-      max-width: 400px;
-    }
-
-    .alert {
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      box-shadow: var(--shadow-lg);
-      animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(400px); opacity: 0; }
-      to   { transform: translateX(0); opacity: 1; }
-    }
-
-    @keyframes slideOut {
-      to { transform: translateX(400px); opacity: 0; }
-    }
-
-    .alert-success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
-    .alert-danger  { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
-    .alert-warning { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; }
-    .alert-info    { background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 0;
-        transform: translateX(-280px);
-        transition: transform 0.3s;
-      }
-      .sidebar.active { transform: translateX(0); }
-      .main-content { margin-left: 0; }
-      .search-bar { display: none; }
-    }
+    .alert i{margin-top:2px}
+    .alert-success{border-color: rgba(52,211,153,.35)}
+    .alert-danger{border-color: rgba(251,113,133,.38)}
+    .alert-warning{border-color: rgba(251,191,36,.35)}
+    .alert-info{border-color: rgba(34,211,238,.35)}
+    @keyframes slideIn{from{transform:translateX(420px);opacity:0}to{transform:translateX(0);opacity:1}}
+    @keyframes slideOut{to{transform:translateX(420px);opacity:0}}
 
     {% block extra_css %}{% endblock %}
   </style>
@@ -301,13 +353,13 @@
         <div class="nav-section">
           <div class="nav-section-title">Asosiy</div>
 
-          <a href="{{ safe_url_for('dashboard') }}"
+          <a href="{{ safe_safe_url_for('dashboard') }}"
              class="nav-link {% if ep == 'dashboard' %}active{% endif %}">
             <i class="fas fa-home"></i>
             Bosh sahifa
           </a>
 
-          <a href="{{ safe_url_for('demo') }}"
+          <a href="{{ safe_safe_url_for('demo') }}"
              class="nav-link {% if ep == 'demo' %}active{% endif %}">
             <i class="fas fa-robot"></i>
             AI Demo
@@ -319,7 +371,7 @@
 
           {% if current_user.has_module_access('tasks') %}
             <!-- MUHIM: tasks list endpoint -->
-            <a href="{{ safe_url_for('tasks') }}"
+            <a href="{{ safe_safe_url_for('tasks') }}"
                class="nav-link {% if ep.startswith('tasks') %}active{% endif %}">
               <i class="fas fa-tasks"></i>
               Topshriqlar
@@ -327,7 +379,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('vehicles') %}
-            <a href="{{ safe_url_for('vehicles') }}"
+            <a href="{{ safe_safe_url_for('vehicles') }}"
                class="nav-link {% if ep.startswith('vehicles') %}active{% endif %}">
               <i class="fas fa-car"></i>
               Avto transport
@@ -335,7 +387,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('buildings') %}
-            <a href="{{ safe_url_for('buildings') }}"
+            <a href="{{ safe_safe_url_for('buildings') }}"
                class="nav-link {% if ep.startswith('buildings') %}active{% endif %}">
               <i class="fas fa-building"></i>
               Binolar
@@ -343,7 +395,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('greenspaces') %}
-            <a href="{{ safe_url_for('greenspaces') }}"
+            <a href="{{ safe_safe_url_for('greenspaces') }}"
                class="nav-link {% if ep.startswith('greenspaces') %}active{% endif %}">
               <i class="fas fa-leaf"></i>
               Yashil makonlar
@@ -351,7 +403,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('solarpanels') %}
-            <a href="{{ safe_url_for('solarpanels') }}"
+            <a href="{{ safe_safe_url_for('solarpanels') }}"
                class="nav-link {% if ep.startswith('solarpanels') %}active{% endif %}">
               <i class="fas fa-solar-panel"></i>
               Quyosh panellari
@@ -359,7 +411,7 @@
           {% endif %}
 
           {% if current_user.role in ['admin', 'rahbar'] %}
-            <a href="{{ safe_url_for('employees') }}"
+            <a href="{{ safe_safe_url_for('employees') }}"
                class="nav-link {% if ep.startswith('employees') %}active{% endif %}">
               <i class="fas fa-users"></i>
               Xodimlar
@@ -367,7 +419,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('outsourcing') %}
-            <a href="{{ safe_url_for('outsourcing') }}"
+            <a href="{{ safe_safe_url_for('outsourcing') }}"
                class="nav-link {% if ep.startswith('outsourcing') %}active{% endif %}">
               <i class="fas fa-handshake"></i>
               Outsorsing
@@ -375,7 +427,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('organizations') %}
-            <a href="{{ safe_url_for('organizations') }}"
+            <a href="{{ safe_safe_url_for('organizations') }}"
                class="nav-link {% if ep.startswith('organizations') %}active{% endif %}">
               <i class="fas fa-sitemap"></i>
               Tashkilotlar
@@ -383,7 +435,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('guests') %}
-            <a href="{{ safe_url_for('guests') }}"
+            <a href="{{ safe_safe_url_for('guests') }}"
                class="nav-link {% if ep.startswith('guests') %}active{% endif %}">
               <i class="fas fa-user-friends"></i>
               Mehmonlar
@@ -391,7 +443,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('celebrations') %}
-            <a href="{{ safe_url_for('celebrations') }}"
+            <a href="{{ safe_safe_url_for('celebrations') }}"
                class="nav-link {% if ep.startswith('celebrations') %}active{% endif %}">
               <i class="fas fa-gift"></i>
               Tabriknomalar
@@ -399,7 +451,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('contracts') %}
-            <a href="{{ safe_url_for('contracts') }}"
+            <a href="{{ safe_safe_url_for('contracts') }}"
                class="nav-link {% if ep.startswith('contracts') %}active{% endif %}">
               <i class="fas fa-file-contract"></i>
               Shartnomalar
@@ -410,7 +462,7 @@
         {% if current_user.role == 'admin' %}
           <div class="nav-section">
             <div class="nav-section-title">Boshqaruv</div>
-            <a href="{{ safe_url_for('admin_panel') }}"
+            <a href="{{ safe_safe_url_for('admin_panel') }}"
                class="nav-link {% if ep.startswith('admin') %}active{% endif %}">
               <i class="fas fa-cog"></i>
               Admin panel
@@ -419,7 +471,7 @@
         {% endif %}
 
         <div class="nav-section">
-          <a href="{{ safe_url_for('logout') }}" class="nav-link">
+          <a href="{{ safe_safe_url_for('logout') }}" class="nav-link">
             <i class="fas fa-sign-out-alt"></i>
             Chiqish
           </a>
