@@ -1,636 +1,480 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AF IMPERIYA{% endblock %} - Enterprise Boshqaruv Tizimi</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary: #0084d4;  /* O'zbekiston ko'k */
-            --primary-dark: #006bb3;
-            --secondary: #1eb53a; /* O'zbekiston yashil */
-            --danger: #e31e25;    /* O'zbekiston qizil */
-            --dark: #1a1a2e;
-            --dark-light: #16213e;
-            --text: #2d3436;
-            --text-light: #636e72;
-            --bg: #f8f9fa;
-            --white: #ffffff;
-            --border: #e1e8ed;
-            --shadow: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            background: linear-gradient(180deg, var(--dark) 0%, var(--dark-light) 100%);
-            padding: 2rem 0;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-        }
-        
-        .logo {
-            text-align: center;
-            padding: 0 1.5rem 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 1.5rem;
-        }
-        
-        .logo h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #0084d4 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.3rem;
-            letter-spacing: -0.5px;
-        }
-        
-        .logo p {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .nav-section {
-            margin-bottom: 2rem;
-        }
-        
-        .nav-section-title {
-            padding: 0 1.5rem;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.75rem;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.9rem 1.5rem;
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-        }
-        
-        .nav-link:hover {
-            background: rgba(255,255,255,0.05);
-            color: var(--white);
-            border-left-color: var(--primary);
-        }
-        
-        .nav-link.active {
-            background: rgba(0,132,212,0.15);
-            color: var(--white);
-            border-left-color: var(--primary);
-            font-weight: 600;
-        }
-        
-        .nav-link i {
-            width: 24px;
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-        }
-        
-        .nav-badge {
-            margin-left: auto;
-            background: var(--danger);
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-        
-        /* Main Content */
-        .main-content {
-            margin-left: 280px;
-            min-height: 100vh;
-        }
-        
-        /* Top Bar */
-        .top-bar {
-            background: var(--white);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-        
-        .search-bar {
-            flex: 1;
-            max-width: 500px;
-            position: relative;
-        }
-        
-        .search-bar input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 3rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-        }
-        
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0,132,212,0.1);
-        }
-        
-        .search-bar i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-        
-        .top-bar-right {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        
-        .notification-btn {
-            position: relative;
-            background: var(--bg);
-            border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .notification-btn:hover {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .notification-badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--danger);
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            border: 2px solid white;
-        }
-        
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .user-profile:hover {
-            background: var(--bg);
-        }
-        
-        .user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        
-        .user-info h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-        
-        .user-info p {
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-        
-        /* Content Area */
-        .content {
-            padding: 2rem;
-        }
-        
-        .page-header {
-            margin-bottom: 2rem;
-        }
-        
-        .page-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-        
-        .page-subtitle {
-            color: var(--text-light);
-            font-size: 1rem;
-        }
-        
-        /* Cards */
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: all 0.3s;
-        }
-        
-        .card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-        
-        /* Buttons */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,132,212,0.3);
-        }
-        
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        /* Flash Messages */
-        .flash-messages {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 9999;
-            max-width: 400px;
-        }
-        
-        .alert {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: var(--shadow-lg);
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            color: #155724;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            color: #856404;
-        }
-        
-        .alert-info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            color: #0c5460;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 0;
-                transform: translateX(-280px);
-                transition: transform 0.3s;
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .search-bar {
-                display: none;
-            }
-        }
-        
-        {% block extra_css %}{% endblock %}
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AF IMPERIYA{% endblock %} - Enterprise Boshqaruv Tizimi</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #0084d4;
+      --primary-dark: #006bb3;
+      --secondary: #1eb53a;
+      --danger: #e31e25;
+      --dark: #1a1a2e;
+      --dark-light: #16213e;
+      --text: #2d3436;
+      --text-light: #636e72;
+      --bg: #f8f9fa;
+      --white: #ffffff;
+      --border: #e1e8ed;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(180deg, var(--dark) 0%, var(--dark-light) 100%);
+      padding: 2rem 0;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+    .logo {
+      text-align: center;
+      padding: 0 1.5rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .logo h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #0084d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.5px;
+    }
+
+    .logo p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-section { margin-bottom: 2rem; }
+
+    .nav-section-title {
+      padding: 0 1.5rem;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.9rem 1.5rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+      border-left-color: var(--primary);
+    }
+
+    .nav-link.active {
+      background: rgba(0,132,212,0.15);
+      color: var(--white);
+      border-left-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-link i {
+      width: 24px;
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    /* Main Content */
+    .main-content { margin-left: 280px; min-height: 100vh; }
+
+    /* Top Bar */
+    .top-bar {
+      background: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .search-bar { flex: 1; max-width: 500px; position: relative; }
+    .search-bar input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,132,212,0.1);
+    }
+    .search-bar i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+
+    .top-bar-right { display: flex; align-items: center; gap: 1.5rem; }
+
+    .notification-btn {
+      position: relative;
+      background: var(--bg);
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .notification-btn:hover { background: var(--primary); color: white; }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      border: 2px solid white;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .user-profile:hover { background: var(--bg); }
+
+    .user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .user-info h4 { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .user-info p { font-size: 0.8rem; color: var(--text-light); }
+
+    /* Content Area */
+    .content { padding: 2rem; }
+
+    /* Flash Messages */
+    .flash-messages {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      max-width: 400px;
+    }
+
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      to { transform: translateX(400px); opacity: 0; }
+    }
+
+    .alert-success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+    .alert-danger  { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+    .alert-warning { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; }
+    .alert-info    { background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+        transform: translateX(-280px);
+        transition: transform 0.3s;
+      }
+      .sidebar.active { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .search-bar { display: none; }
+    }
+
+    {% block extra_css %}{% endblock %}
+  </style>
 </head>
 <body>
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'info-circle' }}"></i>
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-    
-    {% if current_user.is_authenticated %}
-{% set ep = request.endpoint or '' %}
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'info-circle' }}"></i>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% if current_user.is_authenticated %}
+    {% set ep = request.endpoint or '' %}
+
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo">
-            <h1>AF IMPERIYA</h1>
-            <p>Enterprise System</p>
+      <div class="logo">
+        <h1>AF IMPERIYA</h1>
+        <p>Enterprise System</p>
+      </div>
+
+      <nav>
+        <div class="nav-section">
+          <div class="nav-section-title">Asosiy</div>
+
+          <a href="{{ safe_url_for('dashboard') }}"
+             class="nav-link {% if ep == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            Bosh sahifa
+          </a>
+
+          <a href="{{ safe_url_for('demo') }}"
+             class="nav-link {% if ep == 'demo' %}active{% endif %}">
+            <i class="fas fa-robot"></i>
+            AI Demo
+          </a>
         </div>
-        
-        <nav>
-            <div class="nav-section">
-                <div class="nav-section-title">Asosiy</div>
-                <a href="{{ safe_url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                    <i class="fas fa-home"></i>
-                    Bosh sahifa
-                </a>
-            </div>
-                <a href="{{ safe_url_for('demo') }}" class="nav-link {% if request.endpoint == 'demo' %}active{% endif %}">
-                    <i class="fas fa-robot"></i>
-                    AI Demo
-                </a>
-            
-            <div class="nav-section">
-                <div class="nav-section-title">Modullar</div>
-                
-                {% if current_user.has_module_access('tasks') %}
-                <a href="{{ safe_url_for('tasks_view') }}" class="nav-link {% if 'tasks' in ep %}active{% endif %}">
-                    <i class="fas fa-tasks"></i>
-                    Topshriqlar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('vehicles') %}
-                <a href="{{ safe_url_for('vehicles') }}" class="nav-link {% if 'vehicles' in ep %}active{% endif %}">
-                    <i class="fas fa-car"></i>
-                    Avto transport
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('buildings') %}
-                <a href="{{ safe_url_for('buildings') }}" class="nav-link {% if 'buildings' in ep %}active{% endif %}">
-                    <i class="fas fa-building"></i>
-                    Binolar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('greenspaces') %}
-                <a href="{{ safe_url_for('greenspaces') }}" class="nav-link {% if 'greenspaces' in ep %}active{% endif %}">
-                    <i class="fas fa-leaf"></i>
-                    Yashil makonlar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('solarpanels') %}
-                <a href="{{ safe_url_for('solarpanels') }}" class="nav-link {% if 'solarpanels' in ep %}active{% endif %}">
-                    <i class="fas fa-solar-panel"></i>
-                    Quyosh panellari
-                </a>
-                {% endif %}
-                
-                {% if current_user.role in ['admin', 'rahbar'] %}
-                <a href="{{ safe_url_for('employees') }}" class="nav-link {% if 'employees' in ep %}active{% endif %}">
-                    <i class="fas fa-users"></i>
-                    Xodimlar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('outsourcing') %}
-                <a href="{{ safe_url_for('outsourcing') }}" class="nav-link {% if 'outsourcing' in ep %}active{% endif %}">
-                    <i class="fas fa-handshake"></i>
-                    Outsorsing
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('organizations') %}
-                <a href="{{ safe_url_for('organizations') }}" class="nav-link {% if 'organizations' in ep %}active{% endif %}">
-                    <i class="fas fa-sitemap"></i>
-                    Tashkilotlar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('guests') %}
-                <a href="{{ safe_url_for('guests') }}" class="nav-link {% if 'guests' in ep %}active{% endif %}">
-                    <i class="fas fa-user-friends"></i>
-                    Mehmonlar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('celebrations') %}
-                <a href="{{ safe_url_for('celebrations') }}" class="nav-link {% if 'celebrations' in ep %}active{% endif %}">
-                    <i class="fas fa-gift"></i>
-                    Tabriknomalar
-                </a>
-                {% endif %}
-                
-                {% if current_user.has_module_access('contracts') %}
-                <a href="{{ safe_url_for('contracts') }}" class="nav-link {% if 'contracts' in ep %}active{% endif %}">
-                    <i class="fas fa-file-contract"></i>
-                    Shartnomalar
-                </a>
-                {% endif %}
-            </div>
-            
-            {% if current_user.role == 'admin' %}
-            <div class="nav-section">
-                <div class="nav-section-title">Boshqaruv</div>
-                <a href="{{ safe_url_for('admin_panel') }}" class="nav-link {% if 'admin' in ep %}active{% endif %}">
-                    <i class="fas fa-cog"></i>
-                    Admin panel
-                </a>
-            </div>
-            {% endif %}
-            
-            <div class="nav-section">
-                <a href="{{ safe_url_for('logout') }}" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Chiqish
-                </a>
-            </div>
-        </nav>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Modullar</div>
+
+          {% if current_user.has_module_access('tasks') %}
+            <!-- MUHIM: tasks list endpoint -->
+            <a href="{{ safe_url_for('tasks') }}"
+               class="nav-link {% if ep.startswith('tasks') %}active{% endif %}">
+              <i class="fas fa-tasks"></i>
+              Topshriqlar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('vehicles') %}
+            <a href="{{ safe_url_for('vehicles') }}"
+               class="nav-link {% if ep.startswith('vehicles') %}active{% endif %}">
+              <i class="fas fa-car"></i>
+              Avto transport
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('buildings') %}
+            <a href="{{ safe_url_for('buildings') }}"
+               class="nav-link {% if ep.startswith('buildings') %}active{% endif %}">
+              <i class="fas fa-building"></i>
+              Binolar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('greenspaces') %}
+            <a href="{{ safe_url_for('greenspaces') }}"
+               class="nav-link {% if ep.startswith('greenspaces') %}active{% endif %}">
+              <i class="fas fa-leaf"></i>
+              Yashil makonlar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('solarpanels') %}
+            <a href="{{ safe_url_for('solarpanels') }}"
+               class="nav-link {% if ep.startswith('solarpanels') %}active{% endif %}">
+              <i class="fas fa-solar-panel"></i>
+              Quyosh panellari
+            </a>
+          {% endif %}
+
+          {% if current_user.role in ['admin', 'rahbar'] %}
+            <a href="{{ safe_url_for('employees') }}"
+               class="nav-link {% if ep.startswith('employees') %}active{% endif %}">
+              <i class="fas fa-users"></i>
+              Xodimlar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('outsourcing') %}
+            <a href="{{ safe_url_for('outsourcing') }}"
+               class="nav-link {% if ep.startswith('outsourcing') %}active{% endif %}">
+              <i class="fas fa-handshake"></i>
+              Outsorsing
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('organizations') %}
+            <a href="{{ safe_url_for('organizations') }}"
+               class="nav-link {% if ep.startswith('organizations') %}active{% endif %}">
+              <i class="fas fa-sitemap"></i>
+              Tashkilotlar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('guests') %}
+            <a href="{{ safe_url_for('guests') }}"
+               class="nav-link {% if ep.startswith('guests') %}active{% endif %}">
+              <i class="fas fa-user-friends"></i>
+              Mehmonlar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('celebrations') %}
+            <a href="{{ safe_url_for('celebrations') }}"
+               class="nav-link {% if ep.startswith('celebrations') %}active{% endif %}">
+              <i class="fas fa-gift"></i>
+              Tabriknomalar
+            </a>
+          {% endif %}
+
+          {% if current_user.has_module_access('contracts') %}
+            <a href="{{ safe_url_for('contracts') }}"
+               class="nav-link {% if ep.startswith('contracts') %}active{% endif %}">
+              <i class="fas fa-file-contract"></i>
+              Shartnomalar
+            </a>
+          {% endif %}
+        </div>
+
+        {% if current_user.role == 'admin' %}
+          <div class="nav-section">
+            <div class="nav-section-title">Boshqaruv</div>
+            <a href="{{ safe_url_for('admin_panel') }}"
+               class="nav-link {% if ep.startswith('admin') %}active{% endif %}">
+              <i class="fas fa-cog"></i>
+              Admin panel
+            </a>
+          </div>
+        {% endif %}
+
+        <div class="nav-section">
+          <a href="{{ safe_url_for('logout') }}" class="nav-link">
+            <i class="fas fa-sign-out-alt"></i>
+            Chiqish
+          </a>
+        </div>
+      </nav>
     </aside>
-    
+
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Qidirish...">
-            </div>
-            
-            <div class="top-bar-right">
-                <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-                
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        {{ current_user.full_name[0] }}
-                    </div>
-                    <div class="user-info">
-                        <h4>{{ current_user.full_name }}</h4>
-                        <p>{{ current_user.role|title }}</p>
-                    </div>
-                </div>
-            </div>
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Qidirish...">
         </div>
-        
-        <!-- Content -->
-        <div class="content">
-            {% block content %}{% endblock %}
+
+        <div class="top-bar-right">
+          <button class="notification-btn" type="button">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+          </button>
+
+          <div class="user-profile">
+            <div class="user-avatar">
+              {{ current_user.full_name[0] }}
+            </div>
+            <div class="user-info">
+              <h4>{{ current_user.full_name }}</h4>
+              <p>{{ current_user.role|title }}</p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
     </main>
-    {% else %}
+
+  {% else %}
     {% block login_content %}{% endblock %}
-    {% endif %}
-    
-    <script>
-        // Auto-hide flash messages after 5 seconds
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                alert.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => alert.remove(), 300);
-            });
-        }, 5000);
-        
-        @keyframes slideOut {
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-    </script>
-    
-    {% block extra_js %}{% endblock %}
+  {% endif %}
+
+  <script>
+    // Auto-hide flash messages after 5 seconds
+    setTimeout(() => {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        alert.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => alert.remove(), 300);
+      });
+    }, 5000);
+  </script>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>
