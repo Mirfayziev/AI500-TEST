@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
+from werkzeug.routing import BuildError
 from datetime import datetime, timedelta
 from functools import wraps
 import os
@@ -25,85 +26,44 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 # Initialize Flask app
 app = Flask(__name__)
+
+
+# ---------- Template safe_url_for (prevents 500 on missing endpoints) ----------
+@app.context_processor
+def utility_processor():
+    def safe_url_for(endpoint, **values):
+        try:
+            return url_for(endpoint, **values)
+        except BuildError:
+            # If endpoint is missing (renamed/removed), don't crash templates
+            return "#"
+    return dict(safe_url_for=safe_url_for)
 app.config.from_object(Config)
 
 # Initialize extensions
 db.init_app(app)
-# ==============================
-# ONE-TIME DB INIT (Railway-safe)
-# ==============================
-if os.getenv("INIT_DB", "false").lower() == "true":
-    with app.app_context():
-        db.create_all()
-        print("✅ DB initialized (INIT_DB=true)")
-# ==============================
-# ONE-TIME DB INIT (Railway-safe)
-# ==============================
-if os.getenv("INIT_DB", "false").lower() == "true":
-    with app.app_context():
-        db.create_all()
-
-        # ===== CREATE ADMIN (ONE TIME) =====
-        admin = User.query.filter_by(email='admin@afimperiya.uz').first()
-        if not admin:
-            admin = User(
-                full_name='Administrator',
-                email='admin@afimperiya.uz',
-                role='admin',
-                is_active=True
-            )
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-            print("✅ Admin created: admin@afimperiya.uz / admin123")
-        else:
-            print("ℹ️ Admin already exists")
-
-        print("✅ DB initialized (INIT_DB=true)")
-        
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Iltimos, tizimga kiring'
 
-# ===== TELEGRAM WEBHOOK (RAILWAY-SAFE) =====
+# ===== TELEGRAM WEBHOOKNI AVTOMATIK O'RNATISH =====
 import requests
 
 def set_webhook():
-    """
-    Telegram webhookni faqat to‘g‘ri sharoitda o‘rnatadi:
-    - ENABLE_WEBHOOK=true
-    - SERVER_URL mavjud va https bilan boshlanadi
-    """
+    webhook_url = Config.SERVER_URL.rstrip("/") + "/telegram-webhook"
     bot_token = Config.TELEGRAM_BOT_TOKEN
-    base_url = Config.SERVER_URL.rstrip("/")
 
-    if not Config.ENABLE_WEBHOOK:
-        print("Webhook disabled (ENABLE_WEBHOOK=false)")
-        return
+    if bot_token and webhook_url:
+        url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+        resp = requests.post(url, json={"url": webhook_url})
+        print("Webhook response:", resp.text)
 
-    if not bot_token:
-        print("Webhook skipped: TELEGRAM_BOT_TOKEN yo‘q")
-        return
-
-    if not base_url.startswith("https://"):
-        print("Webhook skipped: SERVER_URL noto‘g‘ri yoki yo‘q")
-        return
-
-    webhook_url = f"{base_url}/telegram-webhook"
-
-    url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
-    resp = requests.post(url, json={"url": webhook_url}, timeout=10)
-    print("Webhook response:", resp.text)
-
-
-# ⚠️ Faqat flag yoqilgan bo‘lsa ishga tushadi
 with app.app_context():
     try:
         set_webhook()
     except Exception as e:
         print("Webhook set error:", e)
-
 # ===============================================
 
 # Create upload folders
@@ -381,127 +341,71 @@ def dashboard():
 
 # ==================== TASKS MODULE ====================
 
-from datetime import datetime
-import os
-import uuid
-from werkzeug.utils import secure_filename
-from flask import current_app, flash, redirect, render_template, request, url_for
-
-# Fayl turlari (xohlasangiz kengaytiramiz)
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "pdf", "docx", "xlsx", "zip"}
-
-def _allowed_file(filename: str) -> bool:
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def _parse_dt(value: str):
-    """
-    datetime-local: 2026-01-15T14:30
-    date:          2026-01-15
-    """
-    if not value:
-        return None
-    value = value.strip()
-    for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(value, fmt)
-        except ValueError:
-            continue
-    return None
-
+@app.route('/tasks')
+@login_required
+@module_access_required('tasks')
+def tasks():
+    if current_user.role in ['admin', 'rahbar']:
+        tasks = Task.query.order_by(Task.created_at.desc()).all()
+    else:
+        user_task_ids = [ta.task_id for ta in current_user.tasks_assigned]
+        tasks = Task.query.filter(Task.id.in_(user_task_ids)).order_by(Task.created_at.desc()).all()
+    
+    return render_template('tasks/index.html', tasks=tasks, get_task_status_color=get_task_status_color)
 
 @app.route('/tasks/create', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def tasks_create():
-    # Xodimlar ro'yxati (multi-assign uchun)
-    users = User.query.filter(User.is_active == True).order_by(User.full_name.asc()).all()
-
     if request.method == 'POST':
-        # 1) Sana/vaqtlarni parse qilish (date ham, datetime-local ham ishlaydi)
-        start_dt = _parse_dt(request.form.get('start_date') or request.form.get('start_at'))
-        due_dt   = _parse_dt(request.form.get('due_date') or request.form.get('due_at'))
-
-        if start_dt and due_dt and due_dt < start_dt:
-            flash("Tugash vaqti boshlanish vaqtidan oldin bo‘lishi mumkin emas.", "danger")
-            return render_template('tasks/create.html', users=users)
-
-        # 2) Task yaratish
         task = Task(
-            title=request.form.get('title', '').strip(),
-            description=(request.form.get('description') or '').strip(),
+            title=request.form.get('title'),
+            description=request.form.get('description'),
             priority=request.form.get('priority', 'medium'),
-            status='pending',  # sizda default pending bor :contentReference[oaicite:2]{index=2}
-            start_date=start_dt,
-            due_date=due_dt,
+            status='pending',
+            start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d') if request.form.get('start_date') else None,
+            due_date=datetime.strptime(request.form.get('due_date'), '%Y-%m-%d') if request.form.get('due_date') else None,
             created_by=current_user.id
         )
-
-        if not task.title:
-            flash("Topshiriq nomi majburiy.", "danger")
-            return render_template('tasks/create.html', users=users)
-
         db.session.add(task)
-        db.session.commit()  # task.id kerak bo‘ladi
-
-        # 3) Multi-assign (B-variant)
-        # Template'da name="assigned_users" :contentReference[oaicite:3]{index=3}
-        assigned_ids = request.form.getlist('assigned_users')
-        # Kelajak uchun fallback:
-        if not assigned_ids:
-            assigned_ids = request.form.getlist('assignees')
-
-        # dublikatlarni tozalash + intga aylantirish
-        clean_ids = []
-        for x in assigned_ids:
-            try:
-                clean_ids.append(int(x))
-            except ValueError:
-                pass
-        clean_ids = sorted(set(clean_ids))
-
-        for uid in clean_ids:
-            db.session.add(TaskAssignment(
-                task_id=task.id,
-                user_id=uid,
-                assigned_by=current_user.id
-            ))
-
-        # 4) Attachments (rasm/fayl)
-        # create.html’da name="attachments" multiple bo‘ladi (quyida beraman)
-        files = request.files.getlist('attachments')
-        if files:
-            upload_dir = os.path.join(current_app.root_path, "static", "uploads", "tasks")
-            os.makedirs(upload_dir, exist_ok=True)
-
-            for f in files:
-                if not f or not f.filename:
-                    continue
-
-                filename = secure_filename(f.filename)
-                if not filename or not _allowed_file(filename):
-                    continue
-
-                # collision bo‘lmasin
-                ext = filename.rsplit(".", 1)[1].lower()
-                stored_name = f"{uuid.uuid4().hex}.{ext}"
-                rel_path = f"uploads/tasks/{stored_name}"
-                abs_path = os.path.join(current_app.root_path, "static", rel_path)
-
-                f.save(abs_path)
-
-                db.session.add(TaskAttachment(
-                    task_id=task.id,
-                    filename=filename,
-                    filepath=f"/static/{rel_path}",
-                    uploaded_by=current_user.id
-                ))
-
         db.session.commit()
-
-        flash("Topshiriq muvaffaqiyatli yaratildi.", "success")
+        
+        # Assign users
+        assigned_user_ids = request.form.getlist('assigned_users')
+        for user_id in assigned_user_ids:
+            assignment = TaskAssignment(
+                task_id=task.id,
+                user_id=int(user_id),
+                assigned_by=current_user.id
+            )
+            db.session.add(assignment)
+            
+            # Send notification
+            notification = Notification(
+                user_id=int(user_id),
+                title='Yangi topshiriq',
+                message=f'Sizga yangi topshiriq biriktirildi: {task.title}',
+                type='task',
+                link=url_for('tasks_view', id=task.id)
+            )
+            db.session.add(notification)
+            
+            # Send Telegram notification
+            send_telegram_notification(
+                int(user_id),
+                f"📋 <b>Yangi topshiriq</b>\n\n"
+                f"<b>Nomi:</b> {task.title}\n"
+                f"<b>Muhimlik:</b> {task.priority}\n"
+                f"<b>Muddat:</b> {task.due_date.strftime('%d.%m.%Y') if task.due_date else 'Belgilanmagan'}"
+            )
+        
+        db.session.commit()
+        
+        flash('Topshiriq muvaffaqiyatli yaratildi', 'success')
         return redirect(url_for('tasks'))
+    
+    users = User.query.filter_by(role='xodim', is_active=True).all()
     return render_template('tasks/create.html', users=users)
-
 
 @app.route('/tasks/<int:id>')
 @login_required
