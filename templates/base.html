@@ -487,7 +487,7 @@
                 {% endif %}
                 
                 {% if current_user.has_module_access('vehicles') %}
-                <a href="{{ url_for('vehicles') }}" class="nav-link {% if 'vehicles' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('tasks') }}" class="nav-link {% if request.endpoint and 'tasks' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-car"></i>
                     Avto transport
                 </a>
