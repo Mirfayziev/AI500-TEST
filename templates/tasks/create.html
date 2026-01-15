@@ -6,7 +6,8 @@
 </div>
 <div class="card" style="max-width: 800px;">
     <form method="POST">
-        <div class="form-group">
+        {% if current_user.role == 'admin' %}
+<div class="form-group">
             <label>Nomi</label>
             <input type="text" name="title" class="form-control" required>
         </div>
@@ -33,7 +34,6 @@
                 <option value="urgent">Juda muhim</option>
             </select>
         </div>
-        {% if current_user.role == 'admin' %}
         <div class="form-group">
             <label>Xodimlarga biriktirish</label>
             <select name="assigned_users" class="form-control" multiple size="5">
@@ -42,9 +42,9 @@
                 {% endfor %}
             </select>
         </div>
-        {% else %}
-        <input type="hidden" name="assigned_users" value="{{ current_user.id }}">
-        {% endif %}
+{% else %}
+<input type="hidden" name="assigned_users" value="{{ current_user.id }}">
+{% endif %}
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-save"></i> Saqlash
         </button>
