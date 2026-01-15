@@ -494,7 +494,7 @@
                 {% endif %}
                 
                 {% if current_user.has_module_access('buildings') %}
-                <a href="{{ url_for('buildings') }}" class="nav-link {% if 'buildings' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('buildings') }}" class="nav-link {% if request.endpoint and 'buildings' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-building"></i>
                     Binolar
                 </a>
