@@ -78,7 +78,13 @@ for folder in UPLOAD_FOLDERS:
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
+@app.context_processor
+def inject_ui_settings():
+    return dict(
+        background_image_url=os.getenv("BACKGROUND_IMAGE_URL"),
+        background_image_opacity=float(os.getenv("BACKGROUND_IMAGE_OPACITY", "0.12")),
+        background_image_blur=int(os.getenv("BACKGROUND_IMAGE_BLUR", "0")),
+    )
 # Custom decorators
 def admin_required(f):
     @wraps(f)
