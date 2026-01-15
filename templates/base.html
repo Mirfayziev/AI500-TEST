@@ -480,7 +480,7 @@
                 <div class="nav-section-title">Modullar</div>
                 
                 {% if current_user.has_module_access('tasks') %}
-                <a href="{{ url_for('tasks') }}" class="nav-link {% if 'tasks' in request.endpoint %}active{% endif %}">
+                <a href="{{ url_for('tasks') }}" class="nav-link {% if request.endpoint and 'tasks' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-tasks"></i>
                     Topshriqlar
                 </a>
