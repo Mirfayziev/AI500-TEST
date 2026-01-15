@@ -361,14 +361,13 @@ def tasks():
 
 @app.route('/tasks/create', methods=['GET', 'POST'])
 @login_required
-@admin_required
 def tasks_create():
     if request.method == 'POST':
         task = Task(
             title=request.form.get('title'),
             description=request.form.get('description'),
             priority=request.form.get('priority', 'medium'),
-            status='pending',
+            status='jarayonda',
             start_date=datetime.strptime(request.form.get('start_date'), '%Y-%m-%d') if request.form.get('start_date') else None,
             due_date=datetime.strptime(request.form.get('due_date'), '%Y-%m-%d') if request.form.get('due_date') else None,
             created_by=current_user.id
@@ -377,8 +376,17 @@ def tasks_create():
         db.session.commit()
         
         # Assign users
-        assigned_user_ids = request.form.getlist('assigned_users')
-        for user_id in assigned_user_ids:
+        if current_user.role == 'xodim':
+            # Xodim faqat o'ziga topshiriq qo'sha oladi
+            assigned_user_ids = [str(current_user.id)]
+        else:
+            assigned_user_ids = request.form.getlist('assigned_users')
+
+        if not assigned_user_ids:
+            flash("Topshiriqni kamida bitta xodimga biriktiring", "warning")
+            db.session.rollback()
+            return redirect(url_for('tasks_create'))
+for user_id in assigned_user_ids:
             assignment = TaskAssignment(
                 task_id=task.id,
                 user_id=int(user_id),
