@@ -488,12 +488,12 @@
                 </a>
                 {% endif %}
                 
-                {% if current_user.has_module_access('vehicles') %}
-                <a href="{{ url_for('tasks') }}" class="nav-link {% if 'tasks' in ep %}active{% endif %}">
-                    <i class="fas fa-car"></i>
-                    Avto transport
-                </a>
-                {% endif %}
+               {% if current_user.has_module_access('vehicles') %}
+               <a href="{{ url_for('vehicles') }}" class="nav-link {% if 'vehicles' in ep %}active{% endif %}">
+                   <i class="fas fa-car"></i>
+                   Avto transport
+               </a>
+               {% endif %}
                 
                 {% if current_user.has_module_access('buildings') %}
                 <a href="{{ url_for('buildings') }}" class="nav-link {% if 'buildings' in ep %}active{% endif %}">
