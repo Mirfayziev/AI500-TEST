@@ -1,171 +1,56 @@
 {% extends "base.html" %}
 {% block title %}Yangi topshiriq{% endblock %}
-
 {% block content %}
-<style>
-  .task-form-wrap{max-width:1100px;margin:0 auto}
-  .task-card{border-radius:18px;overflow:hidden}
-  .task-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
-  .task-head h1{margin:0;font-size:28px;letter-spacing:.2px}
-  .task-sub{opacity:.75;margin-top:6px}
-  .grid-2{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-  @media(max-width:980px){.grid-2{grid-template-columns:1fr}}
-  .panel{border-radius:16px;padding:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
-  .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media(max-width:600px){.form-row-2{grid-template-columns:1fr}}
-  .label{font-size:12px;opacity:.8;margin-bottom:6px}
-  .hint{font-size:12px;opacity:.65;margin-top:6px}
-  .priority-select{display:flex;gap:10px;flex-wrap:wrap}
-  .pbtn{cursor:pointer;border-radius:999px;padding:10px 12px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.12);display:flex;align-items:center;gap:8px}
-  .pbtn input{display:none}
-  .dot{width:10px;height:10px;border-radius:99px;background:currentColor;opacity:.9}
-  .pbtn.active{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.06)}
-  .drop{border:1px dashed rgba(255,255,255,.25);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:flex-start}
-  .drop strong{display:block;margin-bottom:4px}
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .chip{border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:12px}
-  .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-</style>
-
-<div class="task-form-wrap">
-  <div class="page-header task-head">
-    <div>
-      <h1>Yangi topshiriq</h1>
-      <div class="task-sub">Sana/vaqt, muhimlik, bir nechta xodimga biriktirish va fayl yuklash qo‘llab-quvvatlanadi.</div>
-    </div>
-    <div>
-      <a href="{{ url_for('tasks') }}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Orqaga</a>
-    </div>
-  </div>
-
-  <div class="card task-card">
-    <form method="POST" enctype="multipart/form-data">
-      <div class="grid-2">
-
-        <!-- LEFT -->
-        <div class="panel">
-          <div class="form-group">
-            <div class="label">1) Topshiriq nomi <span style="opacity:.7">(majburiy)</span></div>
-            <input type="text" name="title" class="form-control" placeholder="Masalan: Ombor inventarizatsiyasi" required>
-            <div class="hint">Qisqa va aniq yozing. Keyin Kanban kartasida shu sarlavha ko‘rinadi.</div>
-          </div>
-
-          <div class="form-group">
-            <div class="label">2) Tavsif <span style="opacity:.7">(ixtiyoriy)</span></div>
-            <textarea name="description" class="form-control" rows="6" placeholder="Nima qilish kerak, qanday natija kerak, izohlar..."></textarea>
-          </div>
-
-          <div class="form-group">
-            <div class="label">7) Rasm yoki fayl yuklash <span style="opacity:.7">(ixtiyoriy)</span></div>
-            <div class="drop" id="dropZone">
-              <i class="fas fa-paperclip" style="margin-top:4px;opacity:.8"></i>
-              <div style="flex:1">
-                <strong>Fayl(lar)ni shu yerga tashlang</strong>
-                <div class="hint">PNG/JPG/PDF/DOCX/XLSX/ZIP. Bir nechta fayl yuklasa bo‘ladi.</div>
-                <input id="attachments" type="file" name="attachments" class="form-control" multiple style="margin-top:10px">
-                <div class="chips" id="fileChips"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="panel">
-          <div class="form-group">
-            <div class="label">3) Berilgan sana/vaqt</div>
-            <input type="datetime-local" name="start_at" class="form-control">
-            <div class="hint">Agar bo‘sh qoldirilsa — ixtiyoriy.</div>
-          </div>
-
-          <div class="form-group">
-            <div class="label">4) Tugash sana/vaqt</div>
-            <input type="datetime-local" name="due_at" class="form-control">
-            <div class="hint">Muddat o‘tib ketsa, keyin kartada “Mudati o‘tgan” qizil bo‘ladi.</div>
-          </div>
-
-          <div class="form-group">
-            <div class="label">5) Muhimlik darajasi</div>
-            <div class="priority-select" id="priorityWrap">
-              <label class="pbtn active" data-val="medium"><span class="dot"></span> O‘rta <input type="radio" name="priority" value="medium" checked></label>
-              <label class="pbtn" data-val="low"><span class="dot"></span> Past <input type="radio" name="priority" value="low"></label>
-              <label class="pbtn" data-val="high"><span class="dot"></span> Yuqori <input type="radio" name="priority" value="high"></label>
-              <label class="pbtn" data-val="urgent"><span class="dot"></span> Juda muhim <input type="radio" name="priority" value="urgent"></label>
-            </div>
-            <div class="hint">Tizimda prioritet keyin filtr/sort uchun ham ishlatiladi.</div>
-          </div>
-
-          <div class="form-group">
-            <div class="label">6) Topshiriq kimga biriktiriladi? (multi)</div>
-            <select name="assigned_users" class="form-control" multiple size="8">
-              {% for user in users %}
-                <option value="{{ user.id }}">{{ user.full_name }}{% if user.department %} — {{ user.department }}{% endif %}</option>
-              {% endfor %}
-            </select>
-            <div class="hint">CTRL (Windows) bilan bir nechta tanlaysiz. Keyin “chip search”ga ham o‘tkazamiz (xohlasangiz).</div>
-          </div>
-
-          <div class="actions">
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-save"></i> Saqlash
-            </button>
-            <a href="{{ url_for('tasks') }}" class="btn btn-outline">
-              <i class="fas fa-times"></i> Bekor qilish
-            </a>
-          </div>
-        </div>
-
-      </div>
-    </form>
-  </div>
+<div class="page-header">
+    <h1 class="page-title">Yangi topshiriq</h1>
 </div>
-
-<script>
-  // Priority pills active state
-  (function(){
-    const wrap = document.getElementById('priorityWrap');
-    if(!wrap) return;
-    wrap.querySelectorAll('.pbtn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        wrap.querySelectorAll('.pbtn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const input = btn.querySelector('input');
-        if(input) input.checked = true;
-      });
-    });
-  })();
-
-  // File chips preview (filename list)
-  (function(){
-    const input = document.getElementById('attachments');
-    const chips = document.getElementById('fileChips');
-    if(!input || !chips) return;
-
-    function render(){
-      chips.innerHTML = "";
-      const files = Array.from(input.files || []);
-      files.forEach(f => {
-        const el = document.createElement('span');
-        el.className = "chip";
-        el.textContent = f.name;
-        chips.appendChild(el);
-      });
-    }
-    input.addEventListener('change', render);
-
-    // drag & drop support
-    const dz = document.getElementById('dropZone');
-    if(dz){
-      dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.style.borderColor="rgba(255,255,255,.55)"; });
-      dz.addEventListener('dragleave', ()=>{ dz.style.borderColor="rgba(255,255,255,.25)"; });
-      dz.addEventListener('drop', (e)=>{
-        e.preventDefault();
-        dz.style.borderColor="rgba(255,255,255,.25)";
-        if(e.dataTransfer && e.dataTransfer.files){
-          input.files = e.dataTransfer.files;
-          render();
-        }
-      });
-    }
-  })();
-</script>
+<div class="card" style="max-width: 800px;">
+    <form method="POST">
+        <div class="form-group">
+            <label>Nomi</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Tavsif</label>
+            <textarea name="description" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Boshlanish sanasi</label>
+                <input type="date" name="start_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Muddat</label>
+                <input type="date" name="due_date" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Muhimlik darajasi</label>
+            <select name="priority" class="form-control">
+                <option value="low">Past</option>
+                <option value="medium" selected>O'rta</option>
+                <option value="high">Yuqori</option>
+                <option value="urgent">Juda muhim</option>
+            </select>
+        </div>
+        {% if current_user.role == 'admin' %}
+        <div class="form-group">
+            <label>Xodimlarga biriktirish</label>
+            <select name="assigned_users" class="form-control" multiple size="5">
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user.full_name }} - {{ user.department }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% else %}
+        <input type="hidden" name="assigned_users" value="{{ current_user.id }}">
+        {% endif %}
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Saqlash
+        </button>
+        <a href="{{ url_for('tasks') }}" class="btn btn-outline">
+            <i class="fas fa-times"></i> Bekor qilish
+        </a>
+    </form>
+</div>
 {% endblock %}
