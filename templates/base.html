@@ -322,6 +322,122 @@
 
     {% block extra_css %}{% endblock %}
   </style>
+
+  <style>
+  /* WOW_BASE_STYLES */
+  :root{
+    --bg0:#0b1220;
+    --bg1:#0f1a2e;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --brand:#2563eb;
+    --brand2:#06b6d4;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --success:#22c55e;
+    --shadow: 0 10px 30px rgba(2,6,23,.10);
+    --radius: 16px;
+  }
+  body{ background: #f4f7fb; }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image: {% if background_image_url %}url('{{ background_image_url }}'){% else %}none{% endif %};
+    background-size: cover;
+    background-position: center;
+    opacity: {{ background_image_opacity|default(0.12) }};
+    filter: blur({{ background_image_blur|default(0) }}px);
+    z-index:-2;
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(37,99,235,.10), transparent 60%),
+                radial-gradient(900px 500px at 80% 20%, rgba(6,182,212,.10), transparent 55%),
+                linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.92));
+    z-index:-1;
+  }
+  .card, .panel, .content-card{
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(148,163,184,.28);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.65rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,.35);
+    background: #fff;
+    color: #0f172a;
+    text-decoration:none;
+    font-weight:600;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    box-shadow: 0 6px 16px rgba(2,6,23,.06);
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(2,6,23,.10); }
+  .btn:active{ transform: translateY(0px); }
+  .btn-primary{
+    border-color: rgba(37,99,235,.45);
+    background: linear-gradient(135deg, rgba(37,99,235,1), rgba(6,182,212,1));
+    color:#fff !important;
+  }
+  .btn-outline{ background: rgba(255,255,255,.60); }
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="date"], input[type="datetime-local"],
+  textarea, select{
+    width: 100%;
+    padding: .70rem .85rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,.40);
+    background: rgba(255,255,255,.92);
+    outline: none;
+    transition: box-shadow .12s ease, border-color .12s ease;
+  }
+  textarea{ min-height: 120px; }
+  input:focus, textarea:focus, select:focus{
+    border-color: rgba(37,99,235,.70);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+  }
+  label{
+    font-weight:600;
+    color:#0f172a;
+    margin-bottom:.35rem;
+    display:block;
+  }
+  table{
+    width:100%;
+    border-collapse: collapse;
+    overflow:hidden;
+    border-radius: 14px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(148,163,184,.28);
+    box-shadow: 0 10px 30px rgba(2,6,23,.06);
+  }
+  th, td{
+    padding: .75rem .85rem;
+    border-bottom: 1px solid rgba(148,163,184,.20);
+    vertical-align: top;
+  }
+  th{
+    text-align:left;
+    font-size:.90rem;
+    color: #334155;
+    background: rgba(148,163,184,.10);
+  }
+  tr:hover td{ background: rgba(37,99,235,.04); }
+  .empty-state{
+    padding: 28px;
+    text-align:center;
+    color: var(--muted);
+    border: 1px dashed rgba(148,163,184,.45);
+    border-radius: var(--radius);
+    background: rgba(255,255,255,.65);
+  }
+  .nav-link{ border-radius: 12px; }
+  </style>
+
 </head>
 <body>
 
@@ -340,7 +456,7 @@
   {% endwith %}
 
   {% if current_user.is_authenticated %}
-    {% set ep = request.endpoint or '' %}
+    {% set ep = ep or '' %}
 
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -353,13 +469,13 @@
         <div class="nav-section">
           <div class="nav-section-title">Asosiy</div>
 
-          <a href="{{ safe_safe_url_for('dashboard') }}"
+          <a href="{{ safe_url_for('dashboard') }}"
              class="nav-link {% if ep == 'dashboard' %}active{% endif %}">
             <i class="fas fa-home"></i>
             Bosh sahifa
           </a>
 
-          <a href="{{ safe_safe_url_for('demo') }}"
+          <a href="{{ safe_url_for('demo') }}"
              class="nav-link {% if ep == 'demo' %}active{% endif %}">
             <i class="fas fa-robot"></i>
             AI Demo
@@ -371,7 +487,7 @@
 
           {% if current_user.has_module_access('tasks') %}
             <!-- MUHIM: tasks list endpoint -->
-            <a href="{{ safe_safe_url_for('tasks') }}"
+            <a href="{{ safe_url_for('tasks') }}"
                class="nav-link {% if ep.startswith('tasks') %}active{% endif %}">
               <i class="fas fa-tasks"></i>
               Topshriqlar
@@ -379,7 +495,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('vehicles') %}
-            <a href="{{ safe_safe_url_for('vehicles') }}"
+            <a href="{{ safe_url_for('vehicles') }}"
                class="nav-link {% if ep.startswith('vehicles') %}active{% endif %}">
               <i class="fas fa-car"></i>
               Avto transport
@@ -387,7 +503,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('buildings') %}
-            <a href="{{ safe_safe_url_for('buildings') }}"
+            <a href="{{ safe_url_for('buildings') }}"
                class="nav-link {% if ep.startswith('buildings') %}active{% endif %}">
               <i class="fas fa-building"></i>
               Binolar
@@ -395,7 +511,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('greenspaces') %}
-            <a href="{{ safe_safe_url_for('greenspaces') }}"
+            <a href="{{ safe_url_for('greenspaces') }}"
                class="nav-link {% if ep.startswith('greenspaces') %}active{% endif %}">
               <i class="fas fa-leaf"></i>
               Yashil makonlar
@@ -403,7 +519,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('solarpanels') %}
-            <a href="{{ safe_safe_url_for('solarpanels') }}"
+            <a href="{{ safe_url_for('solarpanels') }}"
                class="nav-link {% if ep.startswith('solarpanels') %}active{% endif %}">
               <i class="fas fa-solar-panel"></i>
               Quyosh panellari
@@ -411,7 +527,7 @@
           {% endif %}
 
           {% if current_user.role in ['admin', 'rahbar'] %}
-            <a href="{{ safe_safe_url_for('employees') }}"
+            <a href="{{ safe_url_for('employees') }}"
                class="nav-link {% if ep.startswith('employees') %}active{% endif %}">
               <i class="fas fa-users"></i>
               Xodimlar
@@ -419,7 +535,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('outsourcing') %}
-            <a href="{{ safe_safe_url_for('outsourcing') }}"
+            <a href="{{ safe_url_for('outsourcing') }}"
                class="nav-link {% if ep.startswith('outsourcing') %}active{% endif %}">
               <i class="fas fa-handshake"></i>
               Outsorsing
@@ -427,7 +543,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('organizations') %}
-            <a href="{{ safe_safe_url_for('organizations') }}"
+            <a href="{{ safe_url_for('organizations') }}"
                class="nav-link {% if ep.startswith('organizations') %}active{% endif %}">
               <i class="fas fa-sitemap"></i>
               Tashkilotlar
@@ -435,7 +551,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('guests') %}
-            <a href="{{ safe_safe_url_for('guests') }}"
+            <a href="{{ safe_url_for('guests') }}"
                class="nav-link {% if ep.startswith('guests') %}active{% endif %}">
               <i class="fas fa-user-friends"></i>
               Mehmonlar
@@ -443,7 +559,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('celebrations') %}
-            <a href="{{ safe_safe_url_for('celebrations') }}"
+            <a href="{{ safe_url_for('celebrations') }}"
                class="nav-link {% if ep.startswith('celebrations') %}active{% endif %}">
               <i class="fas fa-gift"></i>
               Tabriknomalar
@@ -451,7 +567,7 @@
           {% endif %}
 
           {% if current_user.has_module_access('contracts') %}
-            <a href="{{ safe_safe_url_for('contracts') }}"
+            <a href="{{ safe_url_for('contracts') }}"
                class="nav-link {% if ep.startswith('contracts') %}active{% endif %}">
               <i class="fas fa-file-contract"></i>
               Shartnomalar
@@ -462,7 +578,7 @@
         {% if current_user.role == 'admin' %}
           <div class="nav-section">
             <div class="nav-section-title">Boshqaruv</div>
-            <a href="{{ safe_safe_url_for('admin_panel') }}"
+            <a href="{{ safe_url_for('admin_panel') }}"
                class="nav-link {% if ep.startswith('admin') %}active{% endif %}">
               <i class="fas fa-cog"></i>
               Admin panel
@@ -471,7 +587,7 @@
         {% endif %}
 
         <div class="nav-section">
-          <a href="{{ safe_safe_url_for('logout') }}" class="nav-link">
+          <a href="{{ safe_url_for('logout') }}" class="nav-link">
             <i class="fas fa-sign-out-alt"></i>
             Chiqish
           </a>
