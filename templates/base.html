@@ -1,648 +1,156 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}AF IMPERIYA{% endblock %} - Enterprise Boshqaruv Tizimi</title>
+    <meta charset="UTF-8">
+    <title>{% block title %}AI500-TEST{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <!-- ========== WOW BACKGROUND (Railway ENV orqali) ========== -->
     <style>
-    :root{
-      --bg-0:#070B16;
-      --bg-1:#0B1020;
-      --panel:rgba(16,23,42,.72);
-      --panel-2:rgba(16,23,42,.92);
-      --border:rgba(255,255,255,.10);
-      --border-2:rgba(255,255,255,.16);
-      --text:#EAF2FF;
-      --muted:rgba(234,242,255,.72);
-      --muted-2:rgba(234,242,255,.52);
-      --primary:#22d3ee;
-      --primary-2:#a78bfa;
-      --success:#34d399;
-      --warning:#fbbf24;
-      --danger:#fb7185;
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-      --shadow-sm: 0 6px 18px rgba(0,0,0,.22);
-      --radius:18px;
-      --radius-sm:14px;
-    }
+        :root{
+            --bg-opacity: {{ background_image_opacity|default(0.15) }};
+            --bg-blur: {{ background_image_blur|default(0) }}px;
+        }
 
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{
-      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(34,211,238,.18), transparent 60%),
-        radial-gradient(900px 600px at 85% 25%, rgba(167,139,250,.16), transparent 55%),
-        radial-gradient(700px 500px at 55% 85%, rgba(52,211,153,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg-0), var(--bg-1));
-      min-height:100vh;
-    }
+        html, body {
+            height: 100%;
+        }
 
-    a{color:inherit}
-    .muted{color:var(--muted)}
-    .muted-2{color:var(--muted-2)}
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: #fff;
+            background: #000;
+        }
 
-    /* Sidebar */
-    .sidebar{
-      position:fixed;left:0;top:0;
-      width:288px;height:100vh;
-      padding:22px 0;
-      background:linear-gradient(180deg, rgba(6,10,25,.92) 0%, rgba(10,16,35,.92) 100%);
-      border-right:1px solid var(--border);
-      box-shadow:var(--shadow);
-      overflow-y:auto;
-      z-index:1000;
-      backdrop-filter: blur(14px);
-    }
-    .sidebar::-webkit-scrollbar{width:6px}
-    .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
+        /* BACKGROUND IMAGE */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background-image: url("{{ url_for('static', filename=background_image_url) }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(var(--bg-blur));
+        }
 
-    .logo{
-      padding:0 22px 18px;
-      margin-bottom:12px;
-      border-bottom:1px solid var(--border);
-      text-align:left;
-    }
-    .logo h1{
-      font-family:'Poppins',sans-serif;
-      font-size:1.65rem;
-      font-weight:800;
-      letter-spacing:-.5px;
-      background: linear-gradient(135deg, #fff 0%, var(--primary) 35%, var(--primary-2) 100%);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-    }
-    .logo p{
-      margin-top:6px;
-      font-size:.72rem;
-      font-weight:700;
-      letter-spacing:1.2px;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.55);
-    }
+        /* DARK OVERLAY */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: rgba(0,0,0,var(--bg-opacity));
+        }
 
-    .nav-section{margin:18px 0}
-    .nav-section-title{
-      padding:0 22px;
-      margin-bottom:10px;
-      color:rgba(255,255,255,.52);
-      font-size:.72rem;
-      font-weight:800;
-      letter-spacing:1px;
-      text-transform:uppercase;
-    }
+        /* LAYOUT */
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
 
-    .nav-link{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:12px 22px;
-      text-decoration:none;
-      color:rgba(255,255,255,.72);
-      border-left:3px solid transparent;
-      transition:all .22s ease;
-    }
-    .nav-link i{width:22px;font-size:1.05rem;opacity:.9}
-    .nav-link:hover{
-      background:rgba(255,255,255,.05);
-      color:#fff;
-      border-left-color:rgba(34,211,238,.45);
-    }
-    .nav-link.active{
-      background: linear-gradient(90deg, rgba(34,211,238,.18), rgba(167,139,250,.10));
-      color:#fff;
-      border-left-color:var(--primary);
-      font-weight:700;
-    }
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            padding: 20px;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(14px);
+            border-right: 1px solid rgba(255,255,255,0.15);
+        }
 
-    /* Main */
-    .main-content{margin-left:288px;min-height:100vh}
-    .top-bar{
-      position:sticky;top:0;z-index:900;
-      padding:14px 24px;
-      background: rgba(10,14,30,.68);
-      border-bottom:1px solid var(--border);
-      backdrop-filter: blur(16px);
-      display:flex;align-items:center;justify-content:space-between;gap:18px;
-    }
+        .sidebar h3 {
+            margin: 0 0 20px;
+            font-size: 18px;
+            font-weight: 700;
+        }
 
-    .search-bar{flex:1;max-width:560px;position:relative}
-    .search-bar i{
-      position:absolute;left:14px;top:50%;
-      transform:translateY(-50%);
-      color:rgba(255,255,255,.55);
-      font-size:.95rem;
-    }
-    .search-bar input{
-      width:100%;
-      padding:12px 14px 12px 40px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(16,23,42,.55);
-      color:var(--text);
-      outline:none;
-      transition:all .2s ease;
-    }
-    .search-bar input::placeholder{color:rgba(234,242,255,.45)}
-    .search-bar input:focus{
-      border-color: rgba(34,211,238,.55);
-      box-shadow: 0 0 0 4px rgba(34,211,238,.12);
-      background: rgba(16,23,42,.70);
-    }
+        .sidebar a {
+            display: block;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            transition: all .25s ease;
+        }
 
-    .top-bar-right{display:flex;align-items:center;gap:14px}
-    .notification-btn{
-      width:44px;height:44px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(16,23,42,.55);
-      color:rgba(255,255,255,.85);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;
-      transition:all .2s ease;
-      position:relative;
-    }
-    .notification-btn:hover{
-      border-color:rgba(34,211,238,.55);
-      box-shadow:0 0 0 4px rgba(34,211,238,.10);
-      transform:translateY(-1px);
-    }
-    .notification-badge{
-      position:absolute;top:-6px;right:-6px;
-      width:20px;height:20px;border-radius:999px;
-      background: linear-gradient(135deg, var(--danger), #ef4444);
-      border:2px solid rgba(10,14,30,.8);
-      display:flex;align-items:center;justify-content:center;
-      font-size:.68rem;font-weight:800;color:#fff;
-    }
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(4px);
+        }
 
-    .user-profile{
-      display:flex;align-items:center;gap:10px;
-      padding:8px 12px;
-      border-radius:16px;
-      border:1px solid var(--border);
-      background: rgba(16,23,42,.55);
-    }
-    .user-avatar{
-      width:40px;height:40px;border-radius:14px;
-      background: linear-gradient(135deg, rgba(34,211,238,.95), rgba(167,139,250,.95));
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;color:#071018;
-    }
-    .user-info h4{font-size:.95rem;font-weight:800;line-height:1.1}
-    .user-info p{font-size:.78rem;color:rgba(234,242,255,.62)}
+        /* CONTENT */
+        .content {
+            flex: 1;
+            padding: 24px;
+        }
 
-    .content{padding:22px 24px 34px}
+        /* GLASS CARD */
+        .glass-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,0.18);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+        }
 
-    /* Cards / panels */
-    .card, .panel, .form-card{
-      background: var(--panel);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(14px);
-    }
-    .card{padding:18px}
-    .card-header{padding:18px 18px 0}
-    .card-body{padding:18px}
-    .card-footer{padding:0 18px 18px}
+        /* FLASH MESSAGES */
+        .flash {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+    </style>
 
-    /* Page header helpers used in templates */
-    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
-    .page-title{font-size:2.1rem;font-weight:900;letter-spacing:-.8px}
-    .page-subtitle{color:rgba(234,242,255,.70);margin-top:6px}
-
-    /* Buttons */
-    .btn, button, input[type="submit"]{
-      display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:11px 14px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(16,23,42,.55);
-      color:var(--text);
-      font-weight:800;
-      cursor:pointer;
-      transition:all .2s ease;
-      text-decoration:none;
-      user-select:none;
-    }
-    .btn:hover, button:hover, input[type="submit"]:hover{
-      transform: translateY(-1px);
-      border-color: rgba(255,255,255,.18);
-      background: rgba(16,23,42,.70);
-    }
-    .btn-primary{
-      border-color: rgba(34,211,238,.55);
-      background: linear-gradient(135deg, rgba(34,211,238,.90), rgba(167,139,250,.78));
-      color:#06131a;
-      box-shadow: 0 10px 24px rgba(34,211,238,.16);
-    }
-    .btn-primary:hover{box-shadow: 0 14px 30px rgba(34,211,238,.22)}
-    .btn-outline{
-      background: transparent;
-      border-color: rgba(34,211,238,.45);
-      color: rgba(234,242,255,.92);
-    }
-    .btn-danger{
-      border-color: rgba(251,113,133,.55);
-      background: linear-gradient(135deg, rgba(251,113,133,.92), rgba(239,68,68,.85));
-      color:#19070a;
-    }
-
-    /* Forms */
-    form{width:100%}
-    .form-group{margin-bottom:14px}
-    .form-group label{display:block;font-weight:800;margin-bottom:8px;color:rgba(234,242,255,.86)}
-    .form-control, input[type="text"], input[type="email"], input[type="password"], input[type="number"],
-    input[type="date"], input[type="datetime-local"], input[type="file"], select, textarea{
-      width:100%;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(16,23,42,.55);
-      color:var(--text);
-      outline:none;
-      transition:all .2s ease;
-    }
-    textarea{min-height:110px;resize:vertical}
-    select{appearance:none}
-    .form-control::placeholder{color:rgba(234,242,255,.42)}
-    .form-control:focus,
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(34,211,238,.60);
-      box-shadow: 0 0 0 4px rgba(34,211,238,.12);
-      background: rgba(16,23,42,.70);
-    }
-    .help-text, .form-text{color:rgba(234,242,255,.55);font-size:.85rem;margin-top:6px}
-
-    .form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    @media (max-width: 980px){
-      .form-row{grid-template-columns:1fr}
-      .main-content{margin-left:0}
-      .sidebar{transform:translateX(-288px);transition:transform .25s ease}
-      .sidebar.active{transform:translateX(0)}
-    }
-
-    /* Tables (if any) */
-    table{width:100%;border-collapse:separate;border-spacing:0 10px}
-    th{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:rgba(234,242,255,.55);text-align:left;padding:0 12px}
-    td{
-      background: rgba(16,23,42,.55);
-      border:1px solid var(--border);
-      padding:12px;
-      color:rgba(234,242,255,.88);
-    }
-    tr td:first-child{border-top-left-radius:14px;border-bottom-left-radius:14px}
-    tr td:last-child{border-top-right-radius:14px;border-bottom-right-radius:14px}
-
-    /* Flash */
-    .flash-messages{position:fixed;top:14px;right:14px;z-index:9999;max-width:420px}
-    .alert{
-      display:flex;align-items:flex-start;gap:12px;
-      padding:12px 14px;border-radius:16px;
-      background: rgba(16,23,42,.82);
-      border:1px solid var(--border);
-      box-shadow: var(--shadow);
-      animation:slideIn .28s ease;
-    }
-    .alert i{margin-top:2px}
-    .alert-success{border-color: rgba(52,211,153,.35)}
-    .alert-danger{border-color: rgba(251,113,133,.38)}
-    .alert-warning{border-color: rgba(251,191,36,.35)}
-    .alert-info{border-color: rgba(34,211,238,.35)}
-    @keyframes slideIn{from{transform:translateX(420px);opacity:0}to{transform:translateX(0);opacity:1}}
-    @keyframes slideOut{to{transform:translateX(420px);opacity:0}}
-
-    {% block extra_css %}{% endblock %}
-  </style>
-
-  <style>
-  /* WOW_BASE_STYLES */
-  :root{
-    --bg0:#0b1220;
-    --bg1:#0f1a2e;
-    --card:#ffffff;
-    --text:#0f172a;
-    --muted:#64748b;
-    --brand:#2563eb;
-    --brand2:#06b6d4;
-    --danger:#ef4444;
-    --warning:#f59e0b;
-    --success:#22c55e;
-    --shadow: 0 10px 30px rgba(2,6,23,.10);
-    --radius: 16px;
-  }
-  body{ background: #f4f7fb; }
-  body::before{
-    content:"";
-    position:fixed; inset:0;
-    background-image: {% if background_image_url %}url('{{ background_image_url }}'){% else %}none{% endif %};
-    background-size: cover;
-    background-position: center;
-    opacity: {{ background_image_opacity|default(0.12) }};
-    filter: blur({{ background_image_blur|default(0) }}px);
-    z-index:-2;
-  }
-  body::after{
-    content:"";
-    position:fixed; inset:0;
-    background: radial-gradient(1200px 600px at 10% 10%, rgba(37,99,235,.10), transparent 60%),
-                radial-gradient(900px 500px at 80% 20%, rgba(6,182,212,.10), transparent 55%),
-                linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.92));
-    z-index:-1;
-  }
-  .card, .panel, .content-card{
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(148,163,184,.28);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-  }
-  .btn{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.65rem 1rem;
-    border-radius: 12px;
-    border: 1px solid rgba(148,163,184,.35);
-    background: #fff;
-    color: #0f172a;
-    text-decoration:none;
-    font-weight:600;
-    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-    box-shadow: 0 6px 16px rgba(2,6,23,.06);
-  }
-  .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(2,6,23,.10); }
-  .btn:active{ transform: translateY(0px); }
-  .btn-primary{
-    border-color: rgba(37,99,235,.45);
-    background: linear-gradient(135deg, rgba(37,99,235,1), rgba(6,182,212,1));
-    color:#fff !important;
-  }
-  .btn-outline{ background: rgba(255,255,255,.60); }
-  input[type="text"], input[type="email"], input[type="password"],
-  input[type="number"], input[type="date"], input[type="datetime-local"],
-  textarea, select{
-    width: 100%;
-    padding: .70rem .85rem;
-    border-radius: 12px;
-    border: 1px solid rgba(148,163,184,.40);
-    background: rgba(255,255,255,.92);
-    outline: none;
-    transition: box-shadow .12s ease, border-color .12s ease;
-  }
-  textarea{ min-height: 120px; }
-  input:focus, textarea:focus, select:focus{
-    border-color: rgba(37,99,235,.70);
-    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-  }
-  label{
-    font-weight:600;
-    color:#0f172a;
-    margin-bottom:.35rem;
-    display:block;
-  }
-  table{
-    width:100%;
-    border-collapse: collapse;
-    overflow:hidden;
-    border-radius: 14px;
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(148,163,184,.28);
-    box-shadow: 0 10px 30px rgba(2,6,23,.06);
-  }
-  th, td{
-    padding: .75rem .85rem;
-    border-bottom: 1px solid rgba(148,163,184,.20);
-    vertical-align: top;
-  }
-  th{
-    text-align:left;
-    font-size:.90rem;
-    color: #334155;
-    background: rgba(148,163,184,.10);
-  }
-  tr:hover td{ background: rgba(37,99,235,.04); }
-  .empty-state{
-    padding: 28px;
-    text-align:center;
-    color: var(--muted);
-    border: 1px dashed rgba(148,163,184,.45);
-    border-radius: var(--radius);
-    background: rgba(255,255,255,.65);
-  }
-  .nav-link{ border-radius: 12px; }
-  </style>
-
+    {% block head %}{% endblock %}
 </head>
+
 <body>
 
-  <!-- Flash Messages -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="flash-messages">
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'info-circle' }}"></i>
-            <span>{{ message }}</span>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
+<div class="app-wrapper">
 
-  {% if current_user.is_authenticated %}
-    {% set ep = ep or '' %}
-
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-      <div class="logo">
-        <h1>AF IMPERIYA</h1>
-        <p>Enterprise System</p>
-      </div>
+        <h3>AI500-TEST</h3>
 
-      <nav>
-        <div class="nav-section">
-          <div class="nav-section-title">Asosiy</div>
-
-          <a href="{{ safe_url_for('dashboard') }}"
-             class="nav-link {% if ep == 'dashboard' %}active{% endif %}">
-            <i class="fas fa-home"></i>
-            Bosh sahifa
-          </a>
-
-          <a href="{{ safe_url_for('demo') }}"
-             class="nav-link {% if ep == 'demo' %}active{% endif %}">
-            <i class="fas fa-robot"></i>
-            AI Demo
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Modullar</div>
-
-          {% if current_user.has_module_access('tasks') %}
-            <!-- MUHIM: tasks list endpoint -->
-            <a href="{{ safe_url_for('tasks') }}"
-               class="nav-link {% if ep.startswith('tasks') %}active{% endif %}">
-              <i class="fas fa-tasks"></i>
-              Topshriqlar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('vehicles') %}
-            <a href="{{ safe_url_for('vehicles') }}"
-               class="nav-link {% if ep.startswith('vehicles') %}active{% endif %}">
-              <i class="fas fa-car"></i>
-              Avto transport
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('buildings') %}
-            <a href="{{ safe_url_for('buildings') }}"
-               class="nav-link {% if ep.startswith('buildings') %}active{% endif %}">
-              <i class="fas fa-building"></i>
-              Binolar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('greenspaces') %}
-            <a href="{{ safe_url_for('greenspaces') }}"
-               class="nav-link {% if ep.startswith('greenspaces') %}active{% endif %}">
-              <i class="fas fa-leaf"></i>
-              Yashil makonlar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('solarpanels') %}
-            <a href="{{ safe_url_for('solarpanels') }}"
-               class="nav-link {% if ep.startswith('solarpanels') %}active{% endif %}">
-              <i class="fas fa-solar-panel"></i>
-              Quyosh panellari
-            </a>
-          {% endif %}
-
-          {% if current_user.role in ['admin', 'rahbar'] %}
-            <a href="{{ safe_url_for('employees') }}"
-               class="nav-link {% if ep.startswith('employees') %}active{% endif %}">
-              <i class="fas fa-users"></i>
-              Xodimlar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('outsourcing') %}
-            <a href="{{ safe_url_for('outsourcing') }}"
-               class="nav-link {% if ep.startswith('outsourcing') %}active{% endif %}">
-              <i class="fas fa-handshake"></i>
-              Outsorsing
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('organizations') %}
-            <a href="{{ safe_url_for('organizations') }}"
-               class="nav-link {% if ep.startswith('organizations') %}active{% endif %}">
-              <i class="fas fa-sitemap"></i>
-              Tashkilotlar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('guests') %}
-            <a href="{{ safe_url_for('guests') }}"
-               class="nav-link {% if ep.startswith('guests') %}active{% endif %}">
-              <i class="fas fa-user-friends"></i>
-              Mehmonlar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('celebrations') %}
-            <a href="{{ safe_url_for('celebrations') }}"
-               class="nav-link {% if ep.startswith('celebrations') %}active{% endif %}">
-              <i class="fas fa-gift"></i>
-              Tabriknomalar
-            </a>
-          {% endif %}
-
-          {% if current_user.has_module_access('contracts') %}
-            <a href="{{ safe_url_for('contracts') }}"
-               class="nav-link {% if ep.startswith('contracts') %}active{% endif %}">
-              <i class="fas fa-file-contract"></i>
-              Shartnomalar
-            </a>
-          {% endif %}
-        </div>
-
-        {% if current_user.role == 'admin' %}
-          <div class="nav-section">
-            <div class="nav-section-title">Boshqaruv</div>
-            <a href="{{ safe_url_for('admin_panel') }}"
-               class="nav-link {% if ep.startswith('admin') %}active{% endif %}">
-              <i class="fas fa-cog"></i>
-              Admin panel
-            </a>
-          </div>
+        {% if current_user.is_authenticated %}
+            <a href="{{ safe_url_for('dashboard') }}">📊 Dashboard</a>
+            <a href="{{ safe_url_for('tasks') }}">📋 Tasks</a>
+            <a href="{{ safe_url_for('vehicles') }}">🚗 Vehicles</a>
+            <a href="{{ safe_url_for('buildings') }}">🏢 Buildings</a>
+            <a href="{{ safe_url_for('organizations') }}">🏭 Organizations</a>
+            <a href="{{ safe_url_for('guests') }}">👥 Guests</a>
+            <a href="{{ safe_url_for('logout') }}">🚪 Logout</a>
+        {% else %}
+            <a href="{{ safe_url_for('login') }}">Login</a>
         {% endif %}
-
-        <div class="nav-section">
-          <a href="{{ safe_url_for('logout') }}" class="nav-link">
-            <i class="fas fa-sign-out-alt"></i>
-            Chiqish
-          </a>
-        </div>
-      </nav>
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Top Bar -->
-      <div class="top-bar">
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Qidirish...">
+    <!-- CONTENT -->
+    <main class="content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash">
+                  {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="glass-card">
+            {% block content %}{% endblock %}
         </div>
 
-        <div class="top-bar-right">
-          <button class="notification-btn" type="button">
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge">3</span>
-          </button>
-
-          <div class="user-profile">
-            <div class="user-avatar">
-              {{ current_user.full_name[0] }}
-            </div>
-            <div class="user-info">
-              <h4>{{ current_user.full_name }}</h4>
-              <p>{{ current_user.role|title }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Content -->
-      <div class="content">
-        {% block content %}{% endblock %}
-      </div>
     </main>
+</div>
 
-  {% else %}
-    {% block login_content %}{% endblock %}
-  {% endif %}
-
-  <script>
-    // Auto-hide flash messages after 5 seconds
-    setTimeout(() => {
-      const alerts = document.querySelectorAll('.alert');
-      alerts.forEach(alert => {
-        alert.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => alert.remove(), 300);
-      });
-    }, 5000);
-  </script>
-
-  {% block extra_js %}{% endblock %}
 </body>
 </html>
